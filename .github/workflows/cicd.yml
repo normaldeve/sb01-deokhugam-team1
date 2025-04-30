@@ -26,7 +26,7 @@ jobs:
 
   set_environment:
     name: 🔀 환경 설정
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && needs.set_environment.outputs.environment == 'prod'
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
@@ -137,29 +137,3 @@ jobs:
           cluster: deokhugam-cluster
           task-definition: ecs/task-definition.json
           force-new-deployment: true
-
-  create_release_pr:
-    name: 📝 릴리즈 PR 생성
-    if: github.event.pull_request.merged == true && needs.set_environment.outputs.environment == 'dev'
-    runs-on: ubuntu-latest
-    needs: [set_environment]
-    steps:
-      - name: 코드 체크아웃
-        uses: actions/checkout@v4
-
-      - name: GitHub 인증
-        run: |
-          echo "${{ secrets.PERSONAL_ACCESS_TOKEN }}" | gh auth login --with-token
-
-      - name: 릴리즈 브랜치 생성
-        run: |
-          git checkout -b release/${{ github.run_id }}
-          git push origin release/${{ github.run_id }}
-
-      - name: 릴리즈 PR 생성
-        run: |
-          gh pr create \
-            --base main \
-            --head release/${{ github.run_id }} \
-            --title "🚀 Release PR: ${{ github.run_id }}" \
-            --body-file .github/PULL_REQUEST_TEMPLATE.md
