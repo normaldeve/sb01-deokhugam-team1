@@ -26,7 +26,7 @@ jobs:
 
   set_environment:
     name: 🔀 환경 설정
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && needs.set_environment.outputs.environment == 'prod'
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
