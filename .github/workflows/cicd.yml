@@ -161,4 +161,5 @@ jobs:
           gh pr create \
             --base main \
             --head release/${{ github.run_id }} \
-            --title "🚀 릴리즈 PR: ${{ github.run_id }} -> main" \
+            --title "🚀 Release PR: ${{ github.run_id }}" \
+            --body "dev 병합 후 자동 생성된 PR입니다. main으로 배포를 준비해주세요."
