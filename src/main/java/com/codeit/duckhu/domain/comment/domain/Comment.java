@@ -1,6 +1,5 @@
 package com.codeit.duckhu.domain.comment.domain;
 
-
 import com.codeit.duckhu.domain.review.entity.Review;
 import com.codeit.duckhu.domain.user.entity.User;
 import com.codeit.duckhu.global.entity.BaseUpdatableEntity;
@@ -19,24 +18,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Comment extends BaseUpdatableEntity {
 
-  @ManyToOne @JoinColumn(name = "user_id")
+  @ManyToOne
+  @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne @JoinColumn(name = "review_id")
+  @ManyToOne
+  @JoinColumn(name = "review_id")
   private Review review;
 
   @Column(name = "content")
   private String content;
 
   @Column(name = "is_deleted")
-  private Boolean isDeleted = false;
+  private Boolean isDeleted;
 
   @Builder
   public Comment(User user, Review review, String content, Boolean isDeleted) {
     this.user = user;
     this.review = review;
     this.content = content;
-    this.isDeleted = isDeleted;
+    this.isDeleted = (isDeleted != null) ? isDeleted : false;
   }
 
   public void setContent(String content) {

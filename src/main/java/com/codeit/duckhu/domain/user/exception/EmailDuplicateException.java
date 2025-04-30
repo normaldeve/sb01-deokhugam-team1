@@ -1,12 +1,13 @@
 package com.codeit.duckhu.domain.user.exception;
 
+import com.codeit.duckhu.global.exception.ErrorCode;
+import lombok.Getter;
 
-import java.time.Instant;
-import java.util.Map;
-
+@Getter
 public class EmailDuplicateException extends UserException {
-
-    public EmailDuplicateException(String email) {
-        super(Instant.now(),UserErrorCode.EMAIL_DUPLICATION,Map.of("email",email));
-    }
+  private final String email;
+  public EmailDuplicateException(String email) {
+    super(ErrorCode.EMAIL_DUPLICATION);
+    this.email = email;
+  }
 }

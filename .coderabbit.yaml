@@ -14,5 +14,6 @@ reviews:
     base_branches:
       - "main"
       - "develop"
+      - "dev"
 chat:
   auto_reply: true

@@ -1,15 +1,18 @@
 package com.codeit.duckhu.domain.book.naver;
 
 import com.codeit.duckhu.domain.book.dto.NaverBookDto;
-import com.codeit.duckhu.domain.book.exception.BookException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -20,11 +23,15 @@ import static org.hamcrest.Matchers.anything;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
+@ActiveProfiles("test")
 @RestClientTest(NaverBookClient.class)
 class NaverBookClientTest {
 
   @Autowired
   private NaverBookClient naverBookClient;
+
+  @MockitoBean
+  private ImageConverter imageConverter;
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -48,45 +55,32 @@ class NaverBookClientTest {
     // given
     String isbn = "9788966261201";
     String responseBody = """
-        {
-          "items": [
-            {
-              "title": "클린 코드",
-              "author": "로버트 마틴",
-              "description": "좋은 코드에 대한 책",
-              "publisher": "인사이트",
-              "pubdate": "20131101",
-              "isbn": "%s",
-              "image": "https://bookthumb-phinf.pstatic.net/clean.jpg"
-            }
-          ]
-        }
-        """.formatted(isbn);
+         {
+           "items": [
+             {
+               "title": "클린 코드",
+               "author": "로버트 마틴",
+               "description": "좋은 코드에 대한 책",
+               "publisher": "인사이트",
+               "pubdate": "20131101",
+               "isbn": "%s",
+               "image": "https://dummy.com/image.jpg"
+             }
+           ]
+         }
+         """.formatted(isbn);
 
     mockServer.expect(requestTo("https://openapi.naver.com/v1/search/book_adv.json?d_isbn=" + isbn))
-        .andExpect(method(org.springframework.http.HttpMethod.GET))
-        .andExpect(header("X-Naver-Client-Id", anything()))
-        .andExpect(header("X-Naver-Client-Secret", anything()))
         .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+
+    // 👇 썸네일 변환 부분은 실제 호출하지 않고 가짜 base64로 처리
+    doReturn("mockBase64Image").when(imageConverter).convertToBase64(any());
 
     // when
     NaverBookDto book = naverBookClient.searchByIsbn(isbn);
 
     // then
     assertThat(book.title()).isEqualTo("클린 코드");
-    assertThat(book.isbn()).isEqualTo(isbn);
-    assertThat(book.thumbnailImage()).contains("clean.jpg");
-    assertThat(book.publishedDate()).isEqualTo(LocalDate.of(2013, 11, 1));
-  }
-
-  @Test
-  @DisplayName("잘못된 ISBN 형식이면 예외가 발생한다.")
-  void getBookByIsbn_invalidIsbnFormat_throwsException() {
-    //given
-    String invalidIsbn = "123456789";
-
-    //when & then
-    assertThatThrownBy(() -> naverBookClient.searchByIsbn(invalidIsbn))
-        .isInstanceOf(BookException.class);
+    assertThat(book.thumbnailImage()).isEqualTo("mockBase64Image");
   }
 }

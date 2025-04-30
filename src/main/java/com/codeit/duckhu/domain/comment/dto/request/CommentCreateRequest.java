@@ -1,7 +1,6 @@
 package com.codeit.duckhu.domain.comment.dto.request;
 
 import java.util.UUID;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

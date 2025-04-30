@@ -15,5 +15,4 @@ public class CommentDto {
   private String content;
   private Instant createdAt;
   private Instant updatedAt;
-
 }

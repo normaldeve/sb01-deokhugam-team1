@@ -5,8 +5,12 @@ import com.codeit.duckhu.domain.book.dto.NaverApiResponse.Item;
 import com.codeit.duckhu.domain.book.dto.NaverBookDto;
 import com.codeit.duckhu.domain.book.exception.BookException;
 import com.codeit.duckhu.global.exception.ErrorCode;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +35,8 @@ public class NaverBookClient {
   // HTTP 요청을 보낼 RestTemplate 인스턴스
   private final RestTemplate restTemplate = new RestTemplate();
 
+  private final ImageConverter imageConverter;
+
   /**
    * 주어진 ISBN을 기반으로 네이버 책 검색 API를 호출하여 책 정보를 조회합니다.
    *
@@ -51,12 +57,8 @@ public class NaverBookClient {
     HttpEntity<Void> request = new HttpEntity<>(headers);
 
     // GET 요청 실행 및 응답 수신
-    ResponseEntity<NaverApiResponse> response = restTemplate.exchange(
-        url,
-        HttpMethod.GET,
-        request,
-        NaverApiResponse.class
-    );
+    ResponseEntity<NaverApiResponse> response =
+        restTemplate.exchange(url, HttpMethod.GET, request, NaverApiResponse.class);
 
     // 응답에서 검색 결과 항목 추출
     List<Item> items = response.getBody().items();
@@ -65,16 +67,19 @@ public class NaverBookClient {
       throw new BookException(ErrorCode.BOOK_NOT_FOUND);
     }
 
+    Item item = items.get(0);
+
+    String base64Thumbnail = imageConverter.convertToBase64(item.image());
+
     // 첫 번째 검색 결과를 기준으로 NaverBookDto 생성
-    NaverApiResponse.Item item = items.get(0);
     return new NaverBookDto(
         item.title(),
         item.author(),
         item.description(),
         item.publisher(),
-        LocalDate.parse(item.pubdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), // yyyyMMdd → LocalDate로 변환
+        LocalDate.parse(
+            item.pubdate(), DateTimeFormatter.ofPattern("yyyyMMdd")), // yyyyMMdd → LocalDate로 변환
         isbn,
-        item.image()
-    );
+        base64Thumbnail);
   }
 }

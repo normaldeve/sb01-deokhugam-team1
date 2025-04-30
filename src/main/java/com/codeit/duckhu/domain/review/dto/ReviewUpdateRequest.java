@@ -10,7 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@Getter @Builder
+@Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewUpdateRequest {
 
@@ -22,5 +23,4 @@ public class ReviewUpdateRequest {
 
   private UUID bookId;
   private UUID userId;
-
 }

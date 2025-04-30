@@ -1,11 +1,12 @@
 package com.codeit.duckhu.domain.book.repository;
 
-import com.codeit.duckhu.config.JpaConfig;
-import com.codeit.duckhu.domain.book.entity.Book;
-import java.time.LocalDate;
-import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.codeit.duckhu.domain.book.entity.Book;
+import com.codeit.duckhu.domain.review.repository.TestJpaConfig;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,11 +19,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(JpaConfig.class)
+@Import(TestJpaConfig.class)
 class BookRepositoryTest {
 
-  @Autowired
-  private BookRepository bookRepository;
+  @Autowired private BookRepository bookRepository;
 
   @Nested
   @DisplayName("Book 저장 테스트")
@@ -32,16 +32,17 @@ class BookRepositoryTest {
 
     @BeforeEach
     void setUp() {
-      Book book = Book.builder()
-          .title("Effective Java")
-          .author("Joshua Bloch")
-          .description("Java best practices")
-          .publisher("Addison-Wesley")
-          .publishedDate(LocalDate.now())
-          .isbn(duplicatedIsbn)
-          .thumbnailUrl("https://example.com/thumb.jpg")
-          .isDeleted(false)
-          .build();
+      Book book =
+          Book.builder()
+              .title("Effective Java")
+              .author("Joshua Bloch")
+              .description("Java best practices")
+              .publisher("Addison-Wesley")
+              .publishedDate(LocalDate.now())
+              .isbn(duplicatedIsbn)
+              .thumbnailUrl("https://example.com/thumb.jpg")
+              .isDeleted(false)
+              .build();
 
       bookRepository.save(book);
     }
@@ -51,16 +52,17 @@ class BookRepositoryTest {
     void save_success() {
       // given
       String isbn = "9780134685992";
-      Book newBook = Book.builder()
-          .title("Java Concurrency in Practice")
-          .author("Brian Goetz")
-          .description("Concurrency concepts in Java")
-          .publisher("Addison-Wesley")
-          .publishedDate(LocalDate.now())
-          .isbn(isbn)
-          .thumbnailUrl("https://example.com/thumb2.jpg")
-          .isDeleted(false)
-          .build();
+      Book newBook =
+          Book.builder()
+              .title("Java Concurrency in Practice")
+              .author("Brian Goetz")
+              .description("Concurrency concepts in Java")
+              .publisher("Addison-Wesley")
+              .publishedDate(LocalDate.now())
+              .isbn(isbn)
+              .thumbnailUrl("https://example.com/thumb2.jpg")
+              .isDeleted(false)
+              .build();
 
       // when
       Book saved = bookRepository.save(newBook);
@@ -75,21 +77,24 @@ class BookRepositoryTest {
     @DisplayName("동일한 ISBN으로 저장 시 예외가 발생한다.")
     void save_duplicateIsbn_throwsException() {
       // given
-      Book duplicateBook = Book.builder()
-          .title("Duplicate Book")
-          .author("Someone Else")
-          .description("This should fail")
-          .publisher("Unknown")
-          .publishedDate(LocalDate.now())
-          .isbn(duplicatedIsbn) // 중복된 ISBN
-          .thumbnailUrl("https://example.com/thumb3.jpg")
-          .isDeleted(false)
-          .build();
+      Book duplicateBook =
+          Book.builder()
+              .title("Duplicate Book")
+              .author("Someone Else")
+              .description("This should fail")
+              .publisher("Unknown")
+              .publishedDate(LocalDate.now())
+              .isbn(duplicatedIsbn) // 중복된 ISBN
+              .thumbnailUrl("https://example.com/thumb3.jpg")
+              .isDeleted(false)
+              .build();
 
       // when & then
-      assertThrows(DataIntegrityViolationException.class, () -> {
-        bookRepository.saveAndFlush(duplicateBook);
-      });
+      assertThrows(
+          DataIntegrityViolationException.class,
+          () -> {
+            bookRepository.saveAndFlush(duplicateBook);
+          });
     }
   }
 }

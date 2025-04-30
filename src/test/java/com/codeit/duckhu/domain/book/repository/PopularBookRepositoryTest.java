@@ -1,12 +1,13 @@
 package com.codeit.duckhu.domain.book.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.codeit.duckhu.config.JpaConfig;
 import com.codeit.duckhu.domain.book.entity.Book;
 import com.codeit.duckhu.domain.book.entity.PopularBook;
+import com.codeit.duckhu.domain.book.repository.popular.PopularBookRepository;
+import com.codeit.duckhu.domain.review.repository.TestJpaConfig;
 import com.codeit.duckhu.global.type.PeriodType;
 import java.time.LocalDate;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,29 +18,28 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(JpaConfig.class)
+@Import(TestJpaConfig.class)
 class PopularBookRepositoryTest {
 
-  @Autowired
-  private BookRepository bookRepository;
+  @Autowired private BookRepository bookRepository;
 
-  @Autowired
-  private PopularBookRepository popularBookRepository;
+  @Autowired private PopularBookRepository popularBookRepository;
 
   private Book savedBook;
 
   @BeforeEach
   void setUp() {
-    Book book = Book.builder()
-        .title("클린 코드")
-        .author("Robert C. Martin")
-        .description("클린 코드를 작성하는 방법에 대해서 알려드림")
-        .publisher("Prentice Hall")
-        .publishedDate(LocalDate.now())
-        .isbn("1710032318812")
-        .thumbnailUrl("https://example.com/clean.jpg")
-        .isDeleted(false)
-        .build();
+    Book book =
+        Book.builder()
+            .title("클린 코드")
+            .author("Robert C. Martin")
+            .description("클린 코드를 작성하는 방법에 대해서 알려드림")
+            .publisher("Prentice Hall")
+            .publishedDate(LocalDate.now())
+            .isbn("1710032318812")
+            .thumbnailUrl("https://example.com/clean.jpg")
+            .isDeleted(false)
+            .build();
 
     savedBook = bookRepository.saveAndFlush(book);
   }
@@ -47,14 +47,15 @@ class PopularBookRepositoryTest {
   @Test
   @DisplayName("인기 도서를 정상적으로 저장하고 조회할 수 있어야 한다.")
   void should_save_and_retrieve_popular_book() {
-    PopularBook popularBook = PopularBook.builder()
-        .book(savedBook)
-        .period(PeriodType.MONTHLY)
-        .reviewCount(42)
-        .rating(4.7)
-        .rank(1)
-        .score(92.5)
-        .build();
+    PopularBook popularBook =
+        PopularBook.builder()
+            .book(savedBook)
+            .period(PeriodType.MONTHLY)
+            .reviewCount(42)
+            .rating(4.7)
+            .rank(1)
+            .score(92.5)
+            .build();
 
     // when
     PopularBook saved = popularBookRepository.save(popularBook);

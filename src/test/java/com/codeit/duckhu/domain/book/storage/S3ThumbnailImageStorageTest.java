@@ -1,29 +1,30 @@
 package com.codeit.duckhu.domain.book.storage;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import org.junit.jupiter.api.DisplayName;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.codeit.duckhu.domain.book.storage.s3.S3ThumbnailImageStorage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import static org.assertj.core.api.Assertions.assertThat;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -31,14 +32,11 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 @ExtendWith(MockitoExtension.class)
 class S3ThumbnailImageStorageTest {
 
-  @Mock
-  private S3Client s3Client; // S3에 실제로 연결되지 않고 동작을 시뮬레이션할 객체
+  @Mock private S3Client s3Client; // S3에 실제로 연결되지 않고 동작을 시뮬레이션할 객체
 
-  @Mock
-  private S3Presigner s3Presigner; // Presigned URL 생성을 시뮬레이션할 객체
+  @Mock private S3Presigner s3Presigner; // Presigned URL 생성을 시뮬레이션할 객체
 
-  @InjectMocks
-  private S3ThumbnailImageStorage storage; // 테스트 대상 객체 (위 Mock들을 내부에 주입)
+  @InjectMocks private S3ThumbnailImageStorage storage; // 테스트 대상 객체 (위 Mock들을 내부에 주입)
 
   @BeforeEach
   void setUp() {
@@ -105,9 +103,10 @@ class S3ThumbnailImageStorageTest {
 
     // then
     // deleteObject 메서드가 적절한 bucket과 key로 호출됐는지 검증
-    verify(s3Client).deleteObject(argThat((DeleteObjectRequest request) ->
-        request.bucket().equals("test-bucket") &&
-            request.key().equals("sample.jpg")
-    ));
+    verify(s3Client)
+        .deleteObject(
+            argThat(
+                (DeleteObjectRequest request) ->
+                    request.bucket().equals("test-bucket") && request.key().equals("sample.jpg")));
   }
 }

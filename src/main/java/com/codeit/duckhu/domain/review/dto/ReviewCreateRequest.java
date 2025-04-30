@@ -1,6 +1,5 @@
 package com.codeit.duckhu.domain.review.dto;
 
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,7 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter @Builder
+@Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ReviewCreateRequest {
@@ -25,6 +25,6 @@ public class ReviewCreateRequest {
   @Max(value = 5, message = "평점은 5 이하여야 합니다.")
   private Integer rating;
 
-  @NotBlank
-  private String content;
+  @NotBlank private String content;
+
 }

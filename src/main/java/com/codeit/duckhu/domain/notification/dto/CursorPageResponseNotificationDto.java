@@ -9,5 +9,4 @@ public record CursorPageResponseNotificationDto(
     Instant nextAfter,
     int size,
     long totalElements,
-    boolean hasNext
-) {}
+    boolean hasNext) {}

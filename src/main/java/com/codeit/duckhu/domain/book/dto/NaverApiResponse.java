@@ -10,6 +10,5 @@ public record NaverApiResponse(List<Item> items) {
       String publisher,
       String pubdate,
       String isbn,
-      String image
-  ) {}
+      String image) {}
 }

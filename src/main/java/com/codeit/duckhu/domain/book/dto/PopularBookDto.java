@@ -14,7 +14,4 @@ public record PopularBookDto(
     Double score,
     Integer reviewCount,
     Double rating,
-    Instant createdAt
-) {
-
-}
+    Instant createdAt) {}

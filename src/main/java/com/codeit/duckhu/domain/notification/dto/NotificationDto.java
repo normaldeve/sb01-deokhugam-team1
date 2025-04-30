@@ -11,6 +11,4 @@ public record NotificationDto(
     String content,
     boolean confirmed,
     Instant createdAt,
-    Instant updatedAt
-) {
-}
+    Instant updatedAt) {}

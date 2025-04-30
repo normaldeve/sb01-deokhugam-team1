@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- 콘솔에 출력하는 Appender -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [userId:%X{userId}] [requestId:%X{requestId}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 파일로 저장하는 Appender -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/deokhugam.log</file> <!-- 현재 폴더 하위 logs 디렉토리에 저장 -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>logs/deokhugam.%d{yyyy-MM-dd}.log</fileNamePattern> <!-- 매일 로그 파일 새로 생성 -->
+      <maxHistory>30</maxHistory> <!-- 30일 동안 파일 보관 -->
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [userId:%X{userId}] [requestId:%X{requestId}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 루트 로거 설정 -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+</configuration>

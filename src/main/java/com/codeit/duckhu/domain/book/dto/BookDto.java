@@ -16,7 +16,4 @@ public record BookDto(
     Integer reviewCount,
     Double rating,
     Instant createdAt,
-    Instant updatedAt
-) {
-
-}
+    Instant updatedAt) {}

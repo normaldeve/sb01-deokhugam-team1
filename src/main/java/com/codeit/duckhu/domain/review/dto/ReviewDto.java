@@ -9,34 +9,35 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter @Builder
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDto {
 
-  @NotNull
-  private UUID id;
+  @NotNull private UUID id;
 
-  private UUID userId;
+  @NotNull private UUID userId;
 
-  private UUID bookId;
+  @NotNull private UUID bookId;
 
-  @NotBlank
-  private String content;
+  @NotNull private String bookTitle;
 
-  @NotNull
-  private int rating;
+  @NotNull private String bookThumbnailUrl;
 
-  @NotNull
-  private int likeCount;
+  @NotNull private String userNickname;
 
-  @NotNull
-  private int commentCount;
+  @NotBlank private String content;
+
+  @NotNull private int rating;
+
+  @NotNull private int likeCount;
+
+  @NotNull private int commentCount;
 
   private boolean likedByMe;
 
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
-
 }

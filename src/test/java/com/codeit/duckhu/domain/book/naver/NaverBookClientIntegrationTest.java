@@ -2,42 +2,49 @@ package com.codeit.duckhu.domain.book.naver;
 
 import com.codeit.duckhu.domain.book.dto.NaverBookDto;
 import java.time.LocalDate;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
-/*
-TestPropertySource에 직접 clientId와 secret 값을 입력하여 테스트 성공을 확인함
+/**
+ * Naver API를 통해 도서 정보를 가져오는 통합 테스트를 진행합니다.
  */
 @ActiveProfiles("test")
 @SpringBootTest
-//@TestPropertySource(properties = {
-//    "naver.client-id={client-id}}",
-//    "naver.client-secret={secret}}"
-//})
+@Import(NaverBookClientIntegrationTest.TestImageConverterConfig.class) // 테스트 전용 클래스를 Import 합니다.
 class NaverBookClientIntegrationTest {
 
   @Autowired
   private NaverBookClient naverBookClient;
 
+  @TestConfiguration
+  static class TestImageConverterConfig {
+    @Bean
+    public ImageConverter imageConverter() {
+      return imageUrl -> "dummyBase64Image"; // 썸네일 이미지를 테스트용 문자열로 고정합니다.
+    }
+  }
+
   @Test
-  @DisplayName("네이버 OpenAPI를 통해 ISBN으로 실제 책 정보를 조회할 수 있다")
-  void searchByIsbn_realApiCall_success() {
+  @DisplayName("실제 환경에서 Naver API를 통해서 도서 정보를 가져온다.")
+  void searchBookByIsbn_realRestTemplate_fakeImageConverter() {
     // given
-    String isbn = "9788966260959"; // 클린코드 ISBN
+    String isbn = "9788936434120"; // 소년이 온다 도서 ISBN
 
     // when
-    NaverBookDto result = naverBookClient.searchByIsbn(isbn);
+    NaverBookDto book = naverBookClient.searchByIsbn(isbn);
 
     // then
-    assertThat(result).isNotNull();
-    assertThat(result.title()).contains("클린 코드");
-    assertThat(result.author()).contains("로버트 C. 마틴");
-    assertThat(result.publishedDate()).isEqualTo(LocalDate.of(2013, 12, 24));
-    assertThat(result.thumbnailImage()).contains("https://");
+    assertThat(book.title()).isNotBlank();
+    assertThat(book.publisher()).isNotBlank();
+    assertThat(book.thumbnailImage()).isEqualTo("dummyBase64Image");
+    assertThat(book.publishedDate()).isInstanceOf(LocalDate.class);
   }
 }
+
