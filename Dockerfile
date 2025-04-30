@@ -44,3 +44,4 @@ EXPOSE 80
 #sh=shell -c=해당 명령어 실행 $JVM_OPTS= ENTRY실행될때까지 몰라.
 #그냥 java로 하면 환경변수 그대로 문자열로 인식해서 JVM_OPTS는 값이 안들어가게됨.
 ENTRYPOINT ["sh","-c","java $JVM_OPTS -jar app.jar"]
+
