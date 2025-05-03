@@ -44,13 +44,13 @@ jobs:
     name: 🐳 Docker 이미지 빌드 및 푸시
     if: github.event.pull_request.merged == true && needs.set_environment.outputs.environment == 'prod'
     runs-on: ubuntu-latest
-    needs: [set_environment]
+    needs: [ set_environment ]
     permissions:
       id-token: write
       contents: read
     strategy:
       matrix:
-        environment: ["${{ needs.set_environment.outputs.environment }}"]
+        environment: [ "${{ needs.set_environment.outputs.environment }}" ]
     environment: ${{ matrix.environment }}
     steps:
       - name: 코드 체크아웃
@@ -82,11 +82,19 @@ jobs:
       - name: Amazon ECR 로그인
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Docker 이미지 빌드 및 푸시
+      - name: Deokhugam Docker 이미지 빌드 및 푸시
         run: |
           docker buildx build --platform linux/amd64 \
             -t public.ecr.aws/b0y2f2j8/deokhugam:local-slim \
             --push .
+
+      - name: Prometheus Docker 이미지 빌드 및 푸시
+        run: |
+          docker buildx build --platform linux/amd64 \
+            -f Dockerfile.prometheus \
+            -t public.ecr.aws/b0y2f2j8/prometheus:with-config \
+            --push .
+  
 
   ecs_deploy:
     name: 🛡️ ECS 배포
@@ -146,3 +154,12 @@ jobs:
           cluster: deokhugam-cluster
           task-definition: ecs/grafana-task-definition.json
           force-new-deployment: true
+
+      - name: ECS 서비스 업데이트 (Prometheus)
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          service: prometheus-service
+          cluster: deokhugam-cluster
+          task-definition: ecs/prometheus-task-definition.json
+          force-new-deployment: true
+
