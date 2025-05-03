@@ -1,19 +1,19 @@
 {
-  "family": "grafana-task",
+  "family": "prometheus-task",
   "networkMode": "bridge",
   "executionRoleArn": "arn:aws:iam::135808941684:role/ecsTaskExecutionRole",
   "taskRoleArn": "arn:aws:iam::135808941684:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "grafana",
-      "image": "grafana/grafana:latest",
-      "cpu": 128,
-      "memory": 256,
-      "memoryReservation": 128,
+      "name": "prometheus",
+      "image": "public.ecr.aws/b0y2f2j8/prometheus:with-config",
+      "cpu": 64,
+      "memory": 128,
+      "memoryReservation": 64,
       "portMappings": [
         {
-          "containerPort": 3000,
-          "hostPort": 3000,
+          "containerPort": 9090,
+          "hostPort": 9090,
           "protocol": "tcp"
         }
       ],
@@ -21,23 +21,17 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/grafana-task",
-          "mode": "non-blocking",
+          "awslogs-group": "/ecs/prometheus-task",
           "awslogs-create-group": "true",
-          "max-buffer-size": "25m",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
         }
       }
     }
   ],
-  "volumes": [],
-  "placementConstraints": [],
-  "requiresCompatibilities": [
-    "EC2"
-  ],
-  "cpu": "256",
-  "memory": "512",
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "64",
+  "memory": "128",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
