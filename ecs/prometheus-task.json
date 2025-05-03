@@ -7,9 +7,9 @@
     {
       "name": "prometheus",
       "image": "public.ecr.aws/b0y2f2j8/prometheus:with-config",
-      "cpu": 64,
-      "memory": 128,
-      "memoryReservation": 64,
+      "cpu": 128,
+      "memory": 256,
+      "memoryReservation": 128,
       "portMappings": [
         {
           "containerPort": 9090,
@@ -30,8 +30,8 @@
     }
   ],
   "requiresCompatibilities": ["EC2"],
-  "cpu": "64",
-  "memory": "128",
+  "cpu": "256",
+  "memory": "512",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
