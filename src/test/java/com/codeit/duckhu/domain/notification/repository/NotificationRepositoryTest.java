@@ -31,7 +31,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @Slf4j
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({ TestJpaConfig.class, NotificationRepositoryImpl.class })
+@Import({TestJpaConfig.class, NotificationRepositoryImpl.class})
 public class NotificationRepositoryTest {
 
   @Autowired private NotificationRepository notificationRepository;
@@ -173,6 +173,7 @@ public class NotificationRepositoryTest {
       assertThat(remainingIds).containsExactlyInAnyOrderElementsOf(expectedIds);
     }
   }
+
   @Nested
   @DisplayName("알림 일괄 확인")
   class BulkMarkAsConfirmedTest {
@@ -199,8 +200,7 @@ public class NotificationRepositoryTest {
 
       // then
       List<Notification> updated = notificationRepository.findAllByReceiverId(receiverId);
-      assertThat(updated)
-          .allMatch(n -> n.isConfirmed() && n.getUpdatedAt().equals(now));
+      assertThat(updated).allMatch(n -> n.isConfirmed() && n.getUpdatedAt().equals(now));
     }
   }
 
@@ -215,13 +215,17 @@ public class NotificationRepositoryTest {
     void setUp() {
       receiverId = UUID.randomUUID();
       // createdAt 순서대로 5개 생성
-      all = IntStream.range(0, 5)
-          .mapToObj(i -> {
-            Notification n = Notification.forLike(UUID.randomUUID(), receiverId, "buzz", "타이틀");
-            ReflectionTestUtils.setField(n, "createdAt", Instant.now().minus(i, ChronoUnit.MINUTES));
-            return n;
-          })
-          .collect(Collectors.toList());
+      all =
+          IntStream.range(0, 5)
+              .mapToObj(
+                  i -> {
+                    Notification n =
+                        Notification.forLike(UUID.randomUUID(), receiverId, "buzz", "타이틀");
+                    ReflectionTestUtils.setField(
+                        n, "createdAt", Instant.now().minus(i, ChronoUnit.MINUTES));
+                    return n;
+                  })
+              .collect(Collectors.toList());
       notificationRepository.saveAll(all);
       em.flush();
       em.clear();
@@ -233,7 +237,8 @@ public class NotificationRepositoryTest {
       Pageable page = PageRequest.of(0, 2, Sort.by("createdAt").descending());
       List<Notification> page1 = notificationRepository.findDescNoCursor(receiverId, page);
 
-      assertThat(page1).hasSize(2)
+      assertThat(page1)
+          .hasSize(2)
           .isSortedAccordingTo((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
     }
 
@@ -244,7 +249,8 @@ public class NotificationRepositoryTest {
       List<Notification> page1 = notificationRepository.findDescNoCursor(receiverId, page);
       Instant cursor = page1.get(1).getCreatedAt();
 
-      List<Notification> page2 = notificationRepository.findDescWithCursor(receiverId, cursor, page);
+      List<Notification> page2 =
+          notificationRepository.findDescWithCursor(receiverId, cursor, page);
       assertThat(page2).allMatch(n -> n.getCreatedAt().isBefore(cursor));
     }
 
@@ -254,7 +260,8 @@ public class NotificationRepositoryTest {
       Pageable page = PageRequest.of(0, 2, Sort.by("createdAt").ascending());
       List<Notification> page1 = notificationRepository.findAscNoCursor(receiverId, page);
 
-      assertThat(page1).hasSize(2)
+      assertThat(page1)
+          .hasSize(2)
           .isSortedAccordingTo(Comparator.comparing(Notification::getCreatedAt));
     }
 

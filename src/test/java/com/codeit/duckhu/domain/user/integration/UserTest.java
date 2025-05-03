@@ -13,17 +13,13 @@ import com.codeit.duckhu.domain.user.dto.UserRegisterRequest;
 import com.codeit.duckhu.domain.user.dto.UserUpdateRequest;
 import com.codeit.duckhu.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 import java.util.UUID;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -50,8 +46,10 @@ public class UserTest {
     UserLoginRequest loginRequest = new UserLoginRequest("test@example.com", "test1234!");
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(loginRequest), headers);
-    ResponseEntity<UserDto> response = restTemplate.postForEntity("/api/users/login", entity, UserDto.class);
+    HttpEntity<String> entity =
+        new HttpEntity<>(objectMapper.writeValueAsString(loginRequest), headers);
+    ResponseEntity<UserDto> response =
+        restTemplate.postForEntity("/api/users/login", entity, UserDto.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
 
     HttpHeaders responseHeaders = response.getHeaders();
@@ -109,7 +107,7 @@ public class UserTest {
   @Test
   @DisplayName("사용자 상세 조회- 성공")
   @Sql("/data.sql")
-  void find_success()throws Exception {
+  void find_success() throws Exception {
     // given
     HttpHeaders sessionHeader = getSessionHeader();
     UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
@@ -134,7 +132,7 @@ public class UserTest {
     sessionHeader.setContentType(MediaType.APPLICATION_JSON);
     sessionHeader.setAccept(List.of(MediaType.APPLICATION_JSON));
     UUID targetId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    UserUpdateRequest request =new UserUpdateRequest("newName");
+    UserUpdateRequest request = new UserUpdateRequest("newName");
 
     sessionHeader.set("Deokhugam-Request-User-ID", targetId.toString());
     HttpEntity<String> httpEntity =
@@ -195,24 +193,24 @@ public class UserTest {
   @DisplayName("파워유저 조회 - 성공")
   @Sql("/data.sql")
   void findPowerUser_success() {
-    //given
+    // given
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/api/users/power")
+    UriComponentsBuilder uriBuilder =
+        UriComponentsBuilder.fromPath("/api/users/power")
             .queryParam("period", "MONTHLY")
             .queryParam("direction", "ASC")
             .queryParam("limit", 10);
 
     HttpEntity<?> entity = new HttpEntity<>(headers);
 
-    //when
-    ResponseEntity<CursorPageResponsePowerUserDto> response = restTemplate.exchange(uriBuilder.toUriString(),
-            HttpMethod.GET,
-            entity,
-            CursorPageResponsePowerUserDto.class);
+    // when
+    ResponseEntity<CursorPageResponsePowerUserDto> response =
+        restTemplate.exchange(
+            uriBuilder.toUriString(), HttpMethod.GET, entity, CursorPageResponsePowerUserDto.class);
 
-    //then
+    // then
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(1, response.getBody().getSize());
 

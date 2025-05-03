@@ -25,7 +25,10 @@ public class CommentCustomRepositoryImpl implements CommentCustomRepository {
     QComment comment = QComment.comment;
 
     BooleanExpression condition =
-        comment.review.id.eq(reviewId)
+        comment
+            .review
+            .id
+            .eq(reviewId)
             .and(comment.isDeleted.eq(false))
             .and(cursorCondition(comment, direction, after, cursorId));
 

@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -73,8 +72,7 @@ public class Review extends BaseUpdatableEntity {
   @Builder.Default
   private List<Comment> comments = new ArrayList<>();
 
-
- // @Version private Long version;
+  // @Version private Long version;
 
   public void updateContent(String content) {
     this.content = content;

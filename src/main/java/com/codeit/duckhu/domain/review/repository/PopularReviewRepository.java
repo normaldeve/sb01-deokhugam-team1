@@ -7,7 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PopularReviewRepository extends JpaRepository<PopularReview, UUID>,
-    PopularReviewRepositoryCustom {
-
-}
+public interface PopularReviewRepository
+    extends JpaRepository<PopularReview, UUID>, PopularReviewRepositoryCustom {}

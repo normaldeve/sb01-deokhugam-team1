@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class EmailDuplicateException extends UserException {
   private final String email;
+
   public EmailDuplicateException(String email) {
     super(ErrorCode.EMAIL_DUPLICATION);
     this.email = email;

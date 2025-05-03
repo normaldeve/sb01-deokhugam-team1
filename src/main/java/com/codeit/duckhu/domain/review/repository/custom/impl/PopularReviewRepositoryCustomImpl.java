@@ -22,8 +22,8 @@ public class PopularReviewRepositoryCustomImpl implements PopularReviewRepositor
   private final QPopularReview review = QPopularReview.popularReview;
 
   @Override
-  public List<PopularReview> findReviewsWithCursor(PeriodType period, Direction direction,
-      String cursor, Instant after, int size) {
+  public List<PopularReview> findReviewsWithCursor(
+      PeriodType period, Direction direction, String cursor, Instant after, int size) {
 
     BooleanBuilder booleanBuilder = new BooleanBuilder();
 
@@ -34,7 +34,7 @@ public class PopularReviewRepositoryCustomImpl implements PopularReviewRepositor
 
     // 현재 시간 기준으로 시작 시간 계산
     Instant now = Instant.now();
-    if(period != null) {
+    if (period != null) {
       Instant startTime = period.toStartInstant(now);
       booleanBuilder.and(review.createdAt.goe(startTime));
     }
@@ -49,24 +49,19 @@ public class PopularReviewRepositoryCustomImpl implements PopularReviewRepositor
 
       if (isAsc) {
         cursorCondition.and(
-            review
-                .rank
-                .gt(rank)
-                .or(review.rank.eq(rank).and(review.createdAt.gt(after))));
+            review.rank.gt(rank).or(review.rank.eq(rank).and(review.createdAt.gt(after))));
       } else {
         cursorCondition.and(
-            review
-                .rank
-                .lt(rank)
-                .or(review.rank.eq(rank).and(review.createdAt.lt(after))));
+            review.rank.lt(rank).or(review.rank.eq(rank).and(review.createdAt.lt(after))));
       }
       booleanBuilder.and(cursorCondition);
     }
 
     // 정렬 조건 설정
-    OrderSpecifier<?>[] orderSpecifiers = isAsc
-            ? new OrderSpecifier[]{review.rank.asc(), review.createdAt.asc()}
-            : new OrderSpecifier[]{review.rank.desc(), review.createdAt.desc()};
+    OrderSpecifier<?>[] orderSpecifiers =
+        isAsc
+            ? new OrderSpecifier[] {review.rank.asc(), review.createdAt.asc()}
+            : new OrderSpecifier[] {review.rank.desc(), review.createdAt.desc()};
 
     return queryFactory
         .selectFrom(review)
@@ -86,21 +81,14 @@ public class PopularReviewRepositoryCustomImpl implements PopularReviewRepositor
 
     booleanBuilder.and(review.createdAt.goe(from));
 
-    return queryFactory
-        .select(review.count())
-        .from(review)
-        .where(booleanBuilder)
-        .fetchOne();
+    return queryFactory.select(review.count()).from(review).where(booleanBuilder).fetchOne();
   }
 
   @Override
   @Transactional
   public void deleteByPeriod(PeriodType period) {
     if (period != null) {
-      long deletedCount = queryFactory
-          .delete(review)
-          .where(review.period.eq(period))
-          .execute();
+      long deletedCount = queryFactory.delete(review).where(review.period.eq(period)).execute();
       log.info("기간별 인기 리뷰 삭제 완료 - 기간 : {}, 삭제된 수 : {}", period, deletedCount);
     }
   }

@@ -2,7 +2,6 @@ package com.codeit.duckhu.domain.user.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.codeit.duckhu.config.QueryDslConfig;
 import com.codeit.duckhu.domain.review.repository.TestJpaConfig;
 import com.codeit.duckhu.domain.user.entity.User;
 import java.util.Optional;

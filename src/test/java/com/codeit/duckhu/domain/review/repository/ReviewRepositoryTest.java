@@ -214,7 +214,7 @@ public class ReviewRepositoryTest {
               null, // 첫 페이지니까 커서 없음
               null, // 첫 페이지니까 after 없음
               3 // 페이지 크기 3
-          );
+              );
 
       // Then
       assertThat(firstPage.size()).isEqualTo(3);
@@ -236,7 +236,7 @@ public class ReviewRepositoryTest {
                   ? lastReviewOfFirstPage.getCreatedAt()
                   : Instant.now(), // 마지막 리뷰 생성 시간을 after로 사용
               3 // 페이지 크기 3
-          );
+              );
 
       // Then
       assertThat(secondPage.size()).isEqualTo(2);
@@ -295,7 +295,7 @@ public class ReviewRepositoryTest {
               null, // 첫 페이지니까 커서 없음
               null, // 첫 페이지니까 after 없음
               3 // 페이지 크기 3
-          );
+              );
 
       // Then
       assertThat(firstPage.size()).isEqualTo(3);
@@ -317,7 +317,7 @@ public class ReviewRepositoryTest {
                   ? lastReviewOfFirstPage.getCreatedAt()
                   : Instant.now(), // 마지막 리뷰 생성 시간을 after로 사용
               3 // 페이지 크기 3
-          );
+              );
 
       // Then
       assertThat(secondPage.size()).isEqualTo(2);
@@ -390,7 +390,7 @@ public class ReviewRepositoryTest {
               null, // 첫 페이지니까 커서 없음
               null, // 첫 페이지니까 after 없음
               10 // 페이지 크기 10
-          );
+              );
 
       // Then
       assertThat(searchResult.size()).isEqualTo(3);
@@ -471,7 +471,7 @@ public class ReviewRepositoryTest {
               null, // 첫 페이지니까 커서 없음
               null, // 첫 페이지니까 after 없음
               10 // 페이지 크기 10
-          );
+              );
 
       // Then
       assertThat(user1Reviews.size()).isEqualTo(3);
@@ -557,7 +557,7 @@ public class ReviewRepositoryTest {
               null, // 첫 페이지니까 커서 없음
               null, // 첫 페이지니까 after 없음
               10 // 페이지 크기 10
-          );
+              );
 
       // Then
       assertThat(book1Reviews.size()).isEqualTo(3);
@@ -566,7 +566,22 @@ public class ReviewRepositoryTest {
         assertThat(review.getContent()).contains("도서1 리뷰");
       }
     }
+    @Test
+    @DisplayName("평점 정렬인데 커서 없음, after만 있는 경우")
+    void findReview_ratingSort_afterOnly() {
+      List<Review> result = reviewRepository.findReviewsWithCursor(
+          null, "rating", DESC, null, null, null, Instant.now(), 5
+      );
+      assertThat(result).isNotNull(); // 오류 없이 실행되는지 확인
+    }
+
+    @Test
+    @DisplayName("잘못된 orderBy 필드가 들어온 경우")
+    void findReview_invalidOrderBy() {
+      List<Review> result = reviewRepository.findReviewsWithCursor(
+          null, "invalidField", DESC, null, null, null, null, 5
+      );
+      assertThat(result).isNotNull(); // 기본 정렬이 작동하는지만 확인
+    }
   }
-
-
 }

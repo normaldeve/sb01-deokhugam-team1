@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.codeit.duckhu.domain.book.entity.Book;
 import com.codeit.duckhu.domain.book.repository.BookRepository;
 import com.codeit.duckhu.domain.comment.domain.Comment;
-import com.codeit.duckhu.domain.comment.dto.CommentDto;
 import com.codeit.duckhu.domain.comment.repository.CommentRepository;
 import com.codeit.duckhu.domain.review.entity.Review;
 import com.codeit.duckhu.domain.review.repository.ReviewRepository;
@@ -16,7 +15,6 @@ import com.codeit.duckhu.global.type.Direction;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,17 +28,13 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(TestJpaConfig.class)
 class CommentRepositoryTest {
 
-  @Autowired
-  CommentRepository commentRepository;
+  @Autowired CommentRepository commentRepository;
 
-  @Autowired
-  ReviewRepository reviewRepository;
+  @Autowired ReviewRepository reviewRepository;
 
-  @Autowired
-  UserRepository userRepository;
+  @Autowired UserRepository userRepository;
 
-  @Autowired
-  BookRepository bookRepository;
+  @Autowired BookRepository bookRepository;
 
   private User savedUser;
   private Review savedReview;
@@ -53,35 +47,25 @@ class CommentRepositoryTest {
     userRepository.deleteAll();
     bookRepository.deleteAll();
 
-    savedUser = User.builder()
-        .email("test@example.com")
-        .password("password")
-        .nickname("tester")
-        .build();
+    savedUser =
+        User.builder().email("test@example.com").password("password").nickname("tester").build();
     userRepository.save(savedUser);
 
-    Book book = Book.builder().title("book")
-        .author("author")
-        .description("test")
-        .isbn("009900")
-        .publishedDate(LocalDate.now())
-        .publisher("test")
-        .build();
+    Book book =
+        Book.builder()
+            .title("book")
+            .author("author")
+            .description("test")
+            .isbn("009900")
+            .publishedDate(LocalDate.now())
+            .publisher("test")
+            .build();
     bookRepository.save(book);
 
-    savedReview = Review.builder()
-        .user(savedUser)
-        .content("리뷰 내용")
-        .book(book)
-        .rating(3)
-        .build();
+    savedReview = Review.builder().user(savedUser).content("리뷰 내용").book(book).rating(3).build();
     reviewRepository.save(savedReview);
 
-    comment = Comment.builder()
-        .user(savedUser)
-        .review(savedReview)
-        .content("test comment")
-        .build();
+    comment = Comment.builder().user(savedUser).review(savedReview).content("test comment").build();
   }
 
   @Test
@@ -109,15 +93,10 @@ class CommentRepositoryTest {
   void searchAll() {
     Comment saved = commentRepository.save(comment);
 
-    Slice<Comment> slice = commentRepository.searchAll(
-        savedReview.getId(),
-        Direction.ASC.toString(),
-        Instant.EPOCH,
-        null,
-        10
-    );
+    Slice<Comment> slice =
+        commentRepository.searchAll(
+            savedReview.getId(), Direction.ASC.toString(), Instant.EPOCH, null, 10);
 
     assertThat(slice.getContent()).contains(saved);
   }
-
 }

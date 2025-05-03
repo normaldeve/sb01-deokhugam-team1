@@ -27,6 +27,4 @@ public interface UserService {
 
   CursorPageResponsePowerUserDto findPowerUsers(
       PeriodType period, Direction direction, String cursor, Instant after, int limit);
-
-
 }

@@ -26,7 +26,6 @@ public interface PopularBookMapper {
         popularBook.getScore(),
         popularBook.getReviewCount(),
         popularBook.getRating(),
-        popularBook.getCreatedAt()
-    );
+        popularBook.getCreatedAt());
   }
 }

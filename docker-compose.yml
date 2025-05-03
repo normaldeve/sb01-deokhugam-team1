@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: duckhu-server
+    networks:
+      - monitoring-network
     ports:
       - "80:8080"
     environment:
@@ -25,11 +27,15 @@ services:
       - app-storage:/app/duckhuFile
     depends_on:
       - my-db
+      - prometheus
+      - grafana
 
 
   my-db:
     image: postgres:17
     container_name: duckhu-db
+    networks:
+      - monitoring-network
     environment:
       - POSTGRES_DB=duckhu_dev
       - POSTGRES_USER=${SPRING_DATASOURCE_USERNAME}
@@ -40,7 +46,46 @@ services:
       - db-data:/var/lib/postgresql/data
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - monitoring-network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - monitoring-network
+    user: "$UID:$GID"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    networks:
+      - monitoring-network
+    ports:
+      - "9100:9100"
+
+networks:
+  monitoring-network:
+    driver: bridge
+
 
 volumes:
   db-data:
   app-storage:
+  grafana-data:

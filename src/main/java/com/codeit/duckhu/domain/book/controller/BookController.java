@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
@@ -55,6 +57,9 @@ public class BookController implements BookApi {
       @RequestParam(value = "cursor", required = false) String cursor,
       @RequestParam(value = "after", required = false) Instant after,
       @RequestParam(value = "limit", defaultValue = "50") int limit) {
+
+    log.info("[도서 목록 조회 요청] keyword: {}, orderBy: {}, direction: {}, limit: {}", keyword, orderBy, direction, limit);
+
     return ResponseEntity.ok(
         bookService.searchBooks(keyword, orderBy, direction, cursor, after, limit));
   }
@@ -68,6 +73,8 @@ public class BookController implements BookApi {
   @GetMapping(value = "/{bookId}")
   public ResponseEntity<BookDto> getBookById(
       @PathVariable(name = "bookId", required = true) UUID bookId) {
+
+    log.info("[도서 상세 조회 요청] ID: {}", bookId);
 
     BookDto findBook = bookService.getBookById(bookId);
 
@@ -92,6 +99,8 @@ public class BookController implements BookApi {
       @RequestParam(value = "after", required = false) Instant after,
       @RequestParam(value = "limit", defaultValue = "50") int limit) {
 
+    log.info("[인기 도서 목록 조회 요청] period: {}, direction: {}, limit: {}", period, direction, limit);
+
     return ResponseEntity.ok(
         bookService.searchPopularBooks(period, direction, cursor, after, limit));
   }
@@ -104,6 +113,9 @@ public class BookController implements BookApi {
    */
   @GetMapping("/info")
   public ResponseEntity<NaverBookDto> getBookByIsbn(@RequestParam("isbn") String isbn) {
+
+    log.info("[Naver API 도서 조회 요청] ISBN: {}", isbn);
+
     return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
   }
 
@@ -122,6 +134,9 @@ public class BookController implements BookApi {
       @PathVariable("bookId") UUID bookId,
       @RequestPart("bookData") BookUpdateRequest bookData,
       @RequestParam(value = "thumbnailImage", required = false) MultipartFile thumbnailImage) {
+
+    log.info("[도서 수정 요청] ID: {}, 제목: {}", bookId, bookData.title());
+
     BookDto updateBook =
         bookService.updateBook(bookId, bookData, Optional.ofNullable(thumbnailImage));
 
@@ -139,7 +154,9 @@ public class BookController implements BookApi {
   public ResponseEntity<BookDto> createBook(
       @Valid @RequestPart("bookData") BookCreateRequest bookData,
       @RequestPart(value = "thumbnailImage", required = false) MultipartFile thumbnailImage) {
-    //     Integer reviewCount, Double rating 관련 로직 필요 -> TODO
+
+    log.info("[도서 등록 요청] 제목: {}, ISBN: {}", bookData.title(), bookData.isbn());
+
     BookDto createBook = bookService.registerBook(bookData, Optional.ofNullable(thumbnailImage));
 
     return ResponseEntity.status(HttpStatus.CREATED).body(createBook);
@@ -155,6 +172,9 @@ public class BookController implements BookApi {
       value = "/isbn/ocr",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<String> extractIsbnOcr(@RequestPart(value = "image") MultipartFile image) {
+
+    log.info("[OCR 요청] 이미지 파일명: {}, 크기: {} bytes", image.getOriginalFilename(), image.getSize());
+
     String isbn = bookService.extractIsbnFromImage(image);
 
     return ResponseEntity.ok(isbn);
@@ -168,6 +188,9 @@ public class BookController implements BookApi {
    */
   @DeleteMapping(value = "/{bookId}")
   public ResponseEntity<Void> deleteBookLogically(@PathVariable("bookId") UUID bookId) {
+
+    log.info("[도서 논리 삭제 요청] ID: {}", bookId);
+
     bookService.deleteBookLogically(bookId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -181,6 +204,9 @@ public class BookController implements BookApi {
    */
   @DeleteMapping(value = "/{bookId}/hard")
   public ResponseEntity<Void> deleteBookPhysically(@PathVariable("bookId") UUID bookId) {
+
+    log.info("[도서 물리 삭제 요청] ID: {}", bookId);
+
     bookService.deleteBookPhysically(bookId);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

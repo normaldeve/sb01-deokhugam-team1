@@ -137,14 +137,16 @@ class UserControllerTest {
     given(userService.findById(userId)).willReturn(userDto);
 
     // when & then
-    mockMvc.perform(get("/api/users/{userId}", userId)
-                    .sessionAttr("userId", userId)
-                    .header("Deokhugam-Request-User-Id", userId)
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.email").value("testA@example.com"))
-            .andExpect(jsonPath("$.nickname").value("testA"));
+    mockMvc
+        .perform(
+            get("/api/users/{userId}", userId)
+                .sessionAttr("userId", userId)
+                .header("Deokhugam-Request-User-Id", userId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.email").value("testA@example.com"))
+        .andExpect(jsonPath("$.nickname").value("testA"));
   }
 
   @Test
@@ -152,11 +154,10 @@ class UserControllerTest {
   void findById_unauthorized_fail() throws Exception {
     UUID targetId = UUID.randomUUID();
 
-    mockMvc.perform(get("/api/users/{userId}", targetId)
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(get("/api/users/{userId}", targetId).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
   }
-
 
   @Test
   @DisplayName("PATCH /api/users/{userId} - 입력값 검증 실패")
@@ -169,14 +170,14 @@ class UserControllerTest {
     // when
     // then
     mockMvc
-            .perform(
-                    patch("/api/users/{userId}", loginId)
-                            .sessionAttr("userId", loginId)
-                            .header("Deokhugam-Request-User-Id", loginId)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("잘못된 입력값입니다."));
+        .perform(
+            patch("/api/users/{userId}", loginId)
+                .sessionAttr("userId", loginId)
+                .header("Deokhugam-Request-User-Id", loginId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").value("잘못된 입력값입니다."));
   }
 
   @Test
@@ -193,15 +194,15 @@ class UserControllerTest {
     // when
     // then
     mockMvc
-            .perform(
-                    patch("/api/users/{userId}", targetId)
-                            .sessionAttr("userId", loginId)
-                            .header("Deokhugam-Request-User-Id", loginId)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath("$.details").value(""))
-            .andExpect(jsonPath("$.message").value("사용자 정보 수정 권한 없음"));
+        .perform(
+            patch("/api/users/{userId}", targetId)
+                .sessionAttr("userId", loginId)
+                .header("Deokhugam-Request-User-Id", loginId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.details").value(""))
+        .andExpect(jsonPath("$.message").value("사용자 정보 수정 권한 없음"));
   }
 
   @Test
@@ -214,11 +215,11 @@ class UserControllerTest {
     // when
     // then
     mockMvc
-            .perform(
-                    patch("/api/users/{userId}", targetId)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isUnauthorized());
+        .perform(
+            patch("/api/users/{userId}", targetId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isUnauthorized());
   }
 
   @Test
@@ -233,14 +234,14 @@ class UserControllerTest {
     // when
     // then
     mockMvc
-            .perform(
-                    delete("/api/users/{userId}", targetId)
-                            .sessionAttr("userId", loginId)
-                            .header("Deokhugam-Request-User-Id", loginId)
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath("$.details").value(""))
-            .andExpect(jsonPath("$.message").value("사용자 삭제 권한 없음"));
+        .perform(
+            delete("/api/users/{userId}", targetId)
+                .sessionAttr("userId", loginId)
+                .header("Deokhugam-Request-User-Id", loginId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.details").value(""))
+        .andExpect(jsonPath("$.message").value("사용자 삭제 권한 없음"));
   }
 
   @Test
@@ -248,11 +249,10 @@ class UserControllerTest {
   void softDelete_unauthorized_fail() throws Exception {
     UUID targetId = UUID.randomUUID();
 
-    mockMvc.perform(delete("/api/users/{userId}", targetId)
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(delete("/api/users/{userId}", targetId).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
   }
-
 
   @Test
   @DisplayName("DELETE /api/users/{userId}/hard - 권한없음 (실패)")
@@ -266,14 +266,14 @@ class UserControllerTest {
     // when
     // then
     mockMvc
-            .perform(
-                    delete("/api/users/{userId}/hard", targetId)
-                            .sessionAttr("userId", loginId)
-                            .header("Deokhugam-Request-User-Id", loginId)
-                            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath("$.details").value(""))
-            .andExpect(jsonPath("$.message").value("사용자 삭제 권한 없음"));
+        .perform(
+            delete("/api/users/{userId}/hard", targetId)
+                .sessionAttr("userId", loginId)
+                .header("Deokhugam-Request-User-Id", loginId)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.details").value(""))
+        .andExpect(jsonPath("$.message").value("사용자 삭제 권한 없음"));
   }
 
   @Test
@@ -281,11 +281,11 @@ class UserControllerTest {
   void hardDelete_unauthorized_fail() throws Exception {
     UUID targetId = UUID.randomUUID();
 
-    mockMvc.perform(delete("/api/users/{userId}/hard", targetId)
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isUnauthorized());
+    mockMvc
+        .perform(
+            delete("/api/users/{userId}/hard", targetId).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
   }
-
 
   @Test
   @DisplayName("GET api/users/power - 성공")
@@ -297,7 +297,8 @@ class UserControllerTest {
     Instant after = null;
     int limit = 10;
 
-    PowerUserDto dto = PowerUserDto.builder()
+    PowerUserDto dto =
+        PowerUserDto.builder()
             .userId(UUID.randomUUID())
             .nickname("testA")
             .period("DAILY")
@@ -309,7 +310,8 @@ class UserControllerTest {
             .commentCount(4)
             .build();
 
-    CursorPageResponsePowerUserDto responseDto = CursorPageResponsePowerUserDto.builder()
+    CursorPageResponsePowerUserDto responseDto =
+        CursorPageResponsePowerUserDto.builder()
             .content(List.of(dto))
             .nextCursor(null)
             .nextAfter(null)
@@ -318,26 +320,20 @@ class UserControllerTest {
             .hasNext(false)
             .build();
 
-    given(userService.findPowerUsers(
-            eq(period),
-            eq(direction),
-            isNull(),
-            isNull(),
-            eq(limit)))
-            .willReturn(responseDto);
+    given(userService.findPowerUsers(eq(period), eq(direction), isNull(), isNull(), eq(limit)))
+        .willReturn(responseDto);
 
     // when & then
-    mockMvc.perform(get("/api/users/power")
-            .param("period", period.name())
-            .param("direction", direction.name())
-            .param("limit", String.valueOf(limit))
-            .contentType(MediaType.APPLICATION_JSON))
-
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].nickname").value("testA"))
-            .andExpect(jsonPath("$.size").value(1))
-            .andExpect(jsonPath("$.hasNext").value(false));
+    mockMvc
+        .perform(
+            get("/api/users/power")
+                .param("period", period.name())
+                .param("direction", direction.name())
+                .param("limit", String.valueOf(limit))
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].nickname").value("testA"))
+        .andExpect(jsonPath("$.size").value(1))
+        .andExpect(jsonPath("$.hasNext").value(false));
   }
 }
-
-

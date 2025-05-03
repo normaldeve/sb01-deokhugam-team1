@@ -34,11 +34,10 @@ VALUES ('11111111-1111-1111-1111-111111111111', '좋아요', 5, 2, 4, false,
         '123e4567-e89b-12d3-a456-426614174000', '22222222-2222-2222-2222-222222222222', CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 
 -- 댓글 두 건
-
-INSERT INTO comments (id, content, is_deleted, user_id, review_id, created_at)
+INSERT INTO comments (id, content, is_deleted, user_id, review_id, created_at, updated_at)
 VALUES
-    ('c1c1c1c1-aaaa-aaaa-aaaa-c1c1c1c1c1c1', '댓글1', false, '123e4567-e89b-12d3-a456-426614174000', '11111111-1111-1111-1111-111111111111', CURRENT_TIMESTAMP),
-    ('c2c2c2c2-bbbb-bbbb-bbbb-c2c2c2c2c2c2', '댓글2', false, '123e4567-e89b-12d3-a456-426614174000', '11111111-1111-1111-1111-111111111111', CURRENT_TIMESTAMP);
+    ('c1c1c1c1-aaaa-aaaa-aaaa-c1c1c1c1c1c1', '댓글1', false, '123e4567-e89b-12d3-a456-426614174000', '11111111-1111-1111-1111-111111111111', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('c2c2c2c2-bbbb-bbbb-bbbb-c2c2c2c2c2c2', '댓글2', false, '123e4567-e89b-12d3-a456-426614174000', '11111111-1111-1111-1111-111111111111', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 좋아요 한 건
 INSERT INTO review_likes (id, user_id, review_id, created_at)

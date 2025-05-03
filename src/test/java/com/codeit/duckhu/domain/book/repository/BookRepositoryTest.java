@@ -24,12 +24,20 @@ class BookRepositoryTest {
 
   @Autowired private BookRepository bookRepository;
 
+  /**
+   * Book 엔티티 저장 관련 기능을 검증합니다.
+   * - 정상 저장 및 조회 가능성
+   * - ISBN 중복 저장 시 예외 발생
+   */
   @Nested
   @DisplayName("Book 저장 테스트")
   class SaveBookTest {
 
     private final String duplicatedIsbn = "9780134685991";
 
+    /**
+     * 테스트 실행 전, 중복 검증용 도서 한 권을 저장합니다.
+     */
     @BeforeEach
     void setUp() {
       Book book =
@@ -47,6 +55,9 @@ class BookRepositoryTest {
       bookRepository.save(book);
     }
 
+    /**
+     * 새로운 도서를 저장하고 정상적으로 조회할 수 있는지 검증합니다.
+     */
     @Test
     @DisplayName("책 엔티티를 저장하고 조회할 수 있다.")
     void save_success() {
@@ -73,6 +84,9 @@ class BookRepositoryTest {
       assertThat(found.get().getTitle()).isEqualTo("Java Concurrency in Practice");
     }
 
+    /**
+     * 이미 존재하는 ISBN으로 도서를 저장하려 하면 예외(DataIntegrityViolationException)가 발생하는지 검증합니다.
+     */
     @Test
     @DisplayName("동일한 ISBN으로 저장 시 예외가 발생한다.")
     void save_duplicateIsbn_throwsException() {

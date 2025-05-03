@@ -28,6 +28,9 @@ public class CustomRepositoryTest {
 
   private final String keyword = "Effective";
 
+  /**
+   * 테스트 시작 전, 데이터베이스에 테스트용 도서 5권을 저장합니다.
+   */
   @BeforeEach
   void setUp() {
     for (int i = 1; i <= 5; i++) {
@@ -50,6 +53,10 @@ public class CustomRepositoryTest {
     em.clear();
   }
 
+  /**
+   * 제목에 특정 키워드가 포함된 도서를 검색하는 기능을 검증합니다.
+   * - 키워드가 포함된 도서가 모두 조회되어야 합니다.
+   */
   @Test
   @DisplayName("제목 키워드로 검색")
   void searchBooksByKeyword() {
@@ -62,6 +69,10 @@ public class CustomRepositoryTest {
     assertThat(books.get(0).getTitle()).contains(keyword);
   }
 
+  /**
+   * 출판일(publishedDate) 기준으로 도서를 내림차순(DESC) 정렬하는 기능을 검증합니다.
+   * - 가장 최근 출판된 도서가 먼저 나와야 합니다.
+   */
   @Test
   @DisplayName("출판일 기준 내림차순 정렬")
   void sortBooksByPublishedDateDesc() {
@@ -70,6 +81,10 @@ public class CustomRepositoryTest {
     assertThat(books.get(0).getPublishedDate()).isAfter(books.get(1).getPublishedDate());
   }
 
+  /**
+   * 제목(title) 기준 오름차순(ASC) 정렬 + 커서 기반 페이지네이션 기능을 검증합니다.
+   * - 첫 페이지 조회 후, 커서를 사용하여 다음 페이지 조회가 가능해야 합니다.
+   */
   @Test
   @DisplayName("제목 기준 ASC 정렬 + 커서 기반 페이지네이션")
   void paginateByTitleAsc() {

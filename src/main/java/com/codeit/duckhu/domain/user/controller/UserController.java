@@ -14,7 +14,6 @@ import com.codeit.duckhu.global.type.Direction;
 import com.codeit.duckhu.global.type.PeriodType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,17 +40,18 @@ public class UserController implements UserApi {
   @Override
   @PostMapping
   public ResponseEntity<UserDto> create(
-          HttpServletRequest request,@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
+      HttpServletRequest request, @Valid @RequestBody UserRegisterRequest userRegisterRequest) {
     UserDto result = userService.create(userRegisterRequest);
     request.getSession(true).setAttribute("userId", result.getId());
     return ResponseEntity.status(HttpStatus.CREATED)
-            .header("Deokhugam-Request-User-Id", result.getId().toString())
-            .body(result);
+        .header("Deokhugam-Request-User-Id", result.getId().toString())
+        .body(result);
   }
 
   @Override
   @PostMapping("/login")
-  public ResponseEntity<UserDto> login(HttpServletRequest request,@Valid @RequestBody UserLoginRequest userLoginRequest) {
+  public ResponseEntity<UserDto> login(
+      HttpServletRequest request, @Valid @RequestBody UserLoginRequest userLoginRequest) {
     UserDto result = userService.login(userLoginRequest);
     request.getSession(true).setAttribute("userId", result.getId());
     return ResponseEntity.ok()
@@ -64,8 +64,8 @@ public class UserController implements UserApi {
   public ResponseEntity<UserDto> findById(@PathVariable UUID userId) {
     UserDto result = userService.findById(userId);
     return ResponseEntity.status(HttpStatus.OK)
-            .header("Deokhugam-Request-User-Id", result.getId().toString())
-            .body(result);
+        .header("Deokhugam-Request-User-Id", result.getId().toString())
+        .body(result);
   }
 
   @Override
@@ -109,12 +109,14 @@ public class UserController implements UserApi {
   @Override
   @GetMapping("/power")
   public ResponseEntity<CursorPageResponsePowerUserDto> findPowerUsers(
-          @RequestParam PeriodType period,
-          @RequestParam(defaultValue = "ASC") Direction direction,
-          @RequestParam(required = false) String cursor,
-          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
-          @RequestParam(defaultValue = "50") int limit) {
-    CursorPageResponsePowerUserDto result = userService.findPowerUsers(period, direction, cursor, after, limit);
+      @RequestParam PeriodType period,
+      @RequestParam(defaultValue = "ASC") Direction direction,
+      @RequestParam(required = false) String cursor,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          Instant after,
+      @RequestParam(defaultValue = "50") int limit) {
+    CursorPageResponsePowerUserDto result =
+        userService.findPowerUsers(period, direction, cursor, after, limit);
     return ResponseEntity.status(HttpStatus.OK).body(result);
   }
 }

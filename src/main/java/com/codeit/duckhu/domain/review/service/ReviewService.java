@@ -33,9 +33,5 @@ public interface ReviewService {
   Review findByIdEntityReturn(UUID reviewId);
 
   CursorPageResponsePopularReviewDto getPopularReviews(
-      PeriodType period,
-      Direction direction,
-      String cursor,
-      Instant after,
-      Integer limit);
+      PeriodType period, Direction direction, String cursor, Instant after, Integer limit);
 }

@@ -8,11 +8,7 @@ import java.util.List;
 
 public interface PopularReviewRepositoryCustom {
   List<PopularReview> findReviewsWithCursor(
-      PeriodType period,
-      Direction direction,
-      String cursor,
-      Instant after,
-      int size);
+      PeriodType period, Direction direction, String cursor, Instant after, int size);
 
   long countByPeriodSince(PeriodType period, Instant from);
 

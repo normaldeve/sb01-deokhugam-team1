@@ -10,5 +10,6 @@ import java.util.List;
 public interface PowerUserRepositoryCustom {
   List<PowerUser> searchByPeriodWithCursorPaging(
       PeriodType period, Direction direction, String cursor, Instant after, int limit);
+
   List<PowerUserStatsDto> findPowerUserStatsBetween(Instant start, Instant end);
 }

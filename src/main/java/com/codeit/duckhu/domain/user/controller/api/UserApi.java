@@ -16,10 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
 import java.time.Instant;
 import java.util.UUID;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
@@ -53,7 +51,8 @@ public interface UserApi {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
   @PostMapping(value = "/api/users/")
-  ResponseEntity<UserDto> create(HttpServletRequest request,@RequestBody UserRegisterRequest userRegisterRequest);
+  ResponseEntity<UserDto> create(
+      HttpServletRequest request, @RequestBody UserRegisterRequest userRegisterRequest);
 
   @Operation(summary = "로그인", description = "사용자 로그인을 처리합니다.")
   @ApiResponses({
@@ -75,7 +74,8 @@ public interface UserApi {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   })
   @PostMapping("/api/users/login")
-  ResponseEntity<UserDto> login(HttpServletRequest request,@RequestBody UserLoginRequest userLoginRequest);
+  ResponseEntity<UserDto> login(
+      HttpServletRequest request, @RequestBody UserLoginRequest userLoginRequest);
 
   @Operation(summary = "사용자 정보 조회", description = "사용자 ID로 상세 정보를 조회합니다.")
   @ApiResponses({
@@ -166,11 +166,13 @@ public interface UserApi {
       HttpServletRequest request,
       @Parameter(description = "사용자 ID") @PathVariable("userId") UUID targetId);
 
-
   @Operation(summary = "파워 유저 목록 조회", description = "기간별 파워 유저 목록을 조회합니다.")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "파워 유저 목록 조회 성공",
-            content = @Content(schema = @Schema(implementation = CursorPageResponsePowerUserDto.class))),
+    @ApiResponse(
+        responseCode = "200",
+        description = "파워 유저 목록 조회 성공",
+        content =
+            @Content(schema = @Schema(implementation = CursorPageResponsePowerUserDto.class))),
     @ApiResponse(
         responseCode = "400",
         description = "잘못된 요청(랭킹 기간 오류, 정렬 방향 오류 등)",
@@ -185,7 +187,9 @@ public interface UserApi {
       @Parameter(description = "랭킹 기간") @RequestParam PeriodType period,
       @Parameter(description = "정렬 방향") @RequestParam(defaultValue = "ASC") Direction direction,
       @Parameter(description = "커서 페이지네이션 커서") @RequestParam(required = false) String cursor,
-      @Parameter(description = "보조 커서(createdAt)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant after,
-      @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "50") int limit
-      );
+      @Parameter(description = "보조 커서(createdAt)")
+          @RequestParam(required = false)
+          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+          Instant after,
+      @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "50") int limit);
 }

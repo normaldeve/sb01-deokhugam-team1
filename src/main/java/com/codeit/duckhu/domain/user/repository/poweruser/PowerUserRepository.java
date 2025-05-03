@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PowerUserRepository
     extends JpaRepository<PowerUser, UUID>, PowerUserRepositoryCustom {
 
-  //벌크연산
+  // 벌크연산
   @Modifying(clearAutomatically = true)
   @Transactional
   void deleteByPeriod(PeriodType period);

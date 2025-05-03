@@ -2,6 +2,9 @@ package com.codeit.duckhu.global.exception;
 
 import com.codeit.duckhu.domain.comment.exception.NoHeaderException;
 import com.codeit.duckhu.global.response.ErrorResponse;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +15,6 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
-import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /** 전역 예외 핸들러 - 전역 예외 처리를 위함. */
 @Slf4j
@@ -59,8 +57,9 @@ public class GlobalExceptionHandler {
       details.putIfAbsent(error.getField(), error.getDefaultMessage());
     }
 
-    //ErrorResponse를 공통으로 쓰고 있기 떄문에 여기서 따로만들어주기
-    ErrorResponse response = ErrorResponse.builder()
+    // ErrorResponse를 공통으로 쓰고 있기 떄문에 여기서 따로만들어주기
+    ErrorResponse response =
+        ErrorResponse.builder()
             .timestamp(Instant.now())
             .code(ErrorCode.INVALID_INPUT_VALUE.name())
             .message(ErrorCode.INVALID_INPUT_VALUE.getMessage())
@@ -74,7 +73,8 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(MissingRequestHeaderException.class)
-  public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
+  public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(
+      MissingRequestHeaderException ex) {
     log.error("Missing request header: {}", ex.getHeaderName());
 
     DomainException customException = new NoHeaderException(ErrorCode.NO_USER_IN_HEADER);
@@ -91,9 +91,8 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(value = {DomainException.class})
   public ResponseEntity<ErrorResponse> handleCustomException(DomainException e) {
-    log.error(
-        "handleCustomException() in GlobalExceptionHandler throw CustomException : {}",
-        e.getMessage());
+    // CustomException의 경우 보통 Client쪽 문제라 생각하여 warn으로 수정
+    log.warn("domain error: code={}, msg={}", e.getErrorCode(), e.getMessage());
     return ResponseEntity.status(e.getErrorCode().getStatus()) // ex. 403, 409, 401
         .body(ErrorResponse.of(e));
   }

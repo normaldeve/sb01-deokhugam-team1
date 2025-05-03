@@ -254,93 +254,90 @@ class UserServiceImplTest {
     }
   }
 
-    @Nested
-    @DisplayName("파워유저 테스트")
-    class PowerUserTest {
-      @Test
-      @DisplayName("파워 유저 조회 성공")
-      void powerUser_success() {
-        // given
-        PeriodType period = PeriodType.DAILY;
-        Direction direction = Direction.ASC;
-        String cursor = null;
-        Instant after = null;
-        int limit = 10;
+  @Nested
+  @DisplayName("파워유저 테스트")
+  class PowerUserTest {
+    @Test
+    @DisplayName("파워 유저 조회 성공")
+    void powerUser_success() {
+      // given
+      PeriodType period = PeriodType.DAILY;
+      Direction direction = Direction.ASC;
+      String cursor = null;
+      Instant after = null;
+      int limit = 10;
 
-        User mockUser = User.builder()
-                .email("testA@example.com")
-                .nickname("testA")
-                .password("testA1!")
-                .build();
-        PowerUser entity = PowerUser.builder()
-                .user(mockUser)
-                .period(period)
-                .reviewScoreSum(10.0)
-                .likeCount(5)
-                .commentCount(3)
-                .score(8.1)
-                .rank(1)
-                .build();
+      User mockUser =
+          User.builder().email("testA@example.com").nickname("testA").password("testA1!").build();
+      PowerUser entity =
+          PowerUser.builder()
+              .user(mockUser)
+              .period(period)
+              .reviewScoreSum(10.0)
+              .likeCount(5)
+              .commentCount(3)
+              .score(8.1)
+              .rank(1)
+              .build();
 
-        PowerUserDto dto = PowerUserDto.builder()
-                .userId(mockUser.getId())
-                .nickname(mockUser.getNickname())
-                .reviewScoreSum(10.0)
-                .likeCount(5)
-                .commentCount(3)
-                .score(8.1)
-                .rank(1)
-                .period(period.name())
-                .build();
-        given(powerUserRepository.searchByPeriodWithCursorPaging(period,direction,cursor,after,limit+1))
-                .willReturn(List.of(entity));
-        given(powerUserMapper.toDto(entity)).willReturn(dto);
+      PowerUserDto dto =
+          PowerUserDto.builder()
+              .userId(mockUser.getId())
+              .nickname(mockUser.getNickname())
+              .reviewScoreSum(10.0)
+              .likeCount(5)
+              .commentCount(3)
+              .score(8.1)
+              .rank(1)
+              .period(period.name())
+              .build();
+      given(
+              powerUserRepository.searchByPeriodWithCursorPaging(
+                  period, direction, cursor, after, limit + 1))
+          .willReturn(List.of(entity));
+      given(powerUserMapper.toDto(entity)).willReturn(dto);
 
+      // when
+      CursorPageResponsePowerUserDto result =
+          sut.findPowerUsers(period, direction, cursor, after, limit);
 
-        // when
-        CursorPageResponsePowerUserDto result =
-            sut.findPowerUsers(period, direction, cursor, after, limit);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0)).isEqualTo(dto);
-      }
-
-      @Test
-      @DisplayName("파워 유저 저장 테스트 성공")
-      void savePowerUser_success() {
-        //given
-        PeriodType period = PeriodType.DAILY;
-        Instant now = Instant.now();
-        Instant start = period.toStartInstant(now);
-        Instant end=now;
-
-        UUID userId = UUID.randomUUID();
-        PowerUserStatsDto statsDto = PowerUserStatsDto.builder()
-                .userId(userId)
-                .reviewScoreSum(7.0)
-                .likedCount(5)
-                .commentCount(10)
-                .build();
-
-        List<PowerUserStatsDto> stats = List.of(statsDto);
-        User mockUser = User.builder()
-                .email("testA@example.com")
-                .nickname("testA")
-                .password("testA1!")
-                .build();
-        ReflectionTestUtils.setField(mockUser, "id", userId);
-
-        given(powerUserRepository.findPowerUserStatsBetween(any(), any())).willReturn(stats);
-        given(userRepository.findAllById(any())).willReturn(List.of(mockUser));
-
-        //when
-        sut.savePowerUser(period);
-        //then
-        verify(powerUserRepository,times(1)).deleteByPeriod(period);
-        verify(powerUserRepository,times(1)).saveAll(any());
-
-      }
+      // then
+      assertThat(result).isNotNull();
+      assertThat(result.getContent()).hasSize(1);
+      assertThat(result.getContent().get(0)).isEqualTo(dto);
     }
+
+    @Test
+    @DisplayName("파워 유저 저장 테스트 성공")
+    void savePowerUser_success() {
+      // given
+      PeriodType period = PeriodType.DAILY;
+      Instant now = Instant.now();
+      Instant start = period.toStartInstant(now);
+      Instant end = now;
+
+      UUID userId = UUID.randomUUID();
+      PowerUserStatsDto statsDto =
+          PowerUserStatsDto.builder()
+              .userId(userId)
+              .reviewScoreSum(7.0)
+              .likedCount(5)
+              .commentCount(10)
+              .build();
+
+      List<PowerUserStatsDto> stats = List.of(statsDto);
+      User mockUser =
+          User.builder().email("testA@example.com").nickname("testA").password("testA1!").build();
+      ReflectionTestUtils.setField(mockUser, "id", userId);
+
+      given(powerUserRepository.findPowerUserStatsBetween(any(), any())).willReturn(stats);
+      given(userRepository.findAllById(any())).willReturn(List.of(mockUser));
+
+      // when
+      sut.savePowerUser(period);
+      // then
+      verify(powerUserRepository, times(1)).deleteByPeriod(period);
+      verify(powerUserRepository, times(1)).saveAll(any());
+    }
+  }
 }

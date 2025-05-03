@@ -7,7 +7,6 @@ import com.codeit.duckhu.domain.comment.dto.request.CommentUpdateRequest;
 import com.codeit.duckhu.domain.comment.service.CommentService;
 import com.codeit.duckhu.global.type.Direction;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

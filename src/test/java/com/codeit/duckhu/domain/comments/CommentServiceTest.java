@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.codeit.duckhu.domain.book.entity.Book;
 import com.codeit.duckhu.domain.comment.domain.Comment;
 import com.codeit.duckhu.domain.comment.dto.CommentDto;
 import com.codeit.duckhu.domain.comment.dto.CursorPageResponseCommentDto;
@@ -239,11 +238,10 @@ class CommentServiceTest {
         .willReturn(slice);
     given(commentMapper.toDto(comment)).willReturn(dto);
 
-    CursorPageResponseCommentDto responseCommentDto = commentService.getList(reviewId, Direction.ASC, null, Instant.now(), 10);
+    CursorPageResponseCommentDto responseCommentDto =
+        commentService.getList(reviewId, Direction.ASC, null, Instant.now(), 10);
 
     assertThat(responseCommentDto.getContent()).hasSize(1);
     assertThat(responseCommentDto.getContent().get(0).getContent()).isEqualTo("test comment");
   }
-
-
 }

@@ -5,7 +5,6 @@ import com.codeit.duckhu.global.entity.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -31,7 +30,8 @@ public class Book extends BaseUpdatableEntity {
   @Column(nullable = false)
   private String author;
 
-  @Column(columnDefinition = "TEXT") private String description;
+  @Column(columnDefinition = "TEXT")
+  private String description;
 
   @Column(nullable = false)
   private String publisher;

@@ -1,8 +1,9 @@
 package com.codeit.duckhu.domain.book.naver;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.codeit.duckhu.domain.book.dto.NaverBookDto;
 import java.time.LocalDate;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +13,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-/**
- * Naver API를 통해 도서 정보를 가져오는 통합 테스트를 진행합니다.
- */
+/** Naver API를 통해 도서 정보를 가져오는 통합 테스트를 진행합니다. */
 @ActiveProfiles("test")
 @SpringBootTest
 @Import(NaverBookClientIntegrationTest.TestImageConverterConfig.class) // 테스트 전용 클래스를 Import 합니다.
 class NaverBookClientIntegrationTest {
 
-  @Autowired
-  private NaverBookClient naverBookClient;
+  @Autowired private NaverBookClient naverBookClient;
 
   @TestConfiguration
   static class TestImageConverterConfig {
@@ -47,4 +45,3 @@ class NaverBookClientIntegrationTest {
     assertThat(book.publishedDate()).isInstanceOf(LocalDate.class);
   }
 }
-

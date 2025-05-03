@@ -4,7 +4,7 @@ import com.codeit.duckhu.global.exception.DomainException;
 import com.codeit.duckhu.global.exception.ErrorCode;
 
 public class CommentException extends DomainException {
-    public CommentException(ErrorCode errorCode) {
-        super(errorCode);
-    }
+  public CommentException(ErrorCode errorCode) {
+    super(errorCode);
+  }
 }

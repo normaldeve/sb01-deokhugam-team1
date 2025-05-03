@@ -46,12 +46,15 @@ public class CommentService {
 
   public CursorPageResponseCommentDto getList(
       UUID reviewId, Direction direction, UUID cursorId, Instant createdAt, int limit) {
-    Slice<Comment> slice = repository.searchAll(reviewId, direction.toString(), createdAt, cursorId, limit);
+    Slice<Comment> slice =
+        repository.searchAll(reviewId, direction.toString(), createdAt, cursorId, limit);
 
     // 삭제되지 않은 댓글만 필터링
-    List<CommentDto> list = slice.getContent().stream()
-        .filter(comment -> !comment.getIsDeleted())  // 삭제되지 않은 댓글만 포함
-        .map(commentMapper::toDto).toList();
+    List<CommentDto> list =
+        slice.getContent().stream()
+            .filter(comment -> !comment.getIsDeleted()) // 삭제되지 않은 댓글만 포함
+            .map(commentMapper::toDto)
+            .toList();
 
     CursorPageResponseCommentDto response = new CursorPageResponseCommentDto();
     response.setContent(list);
@@ -81,7 +84,7 @@ public class CommentService {
 
     // 리뷰의 댓글 수 증가
     comment.getReview().increaseCommentCount();
-    
+
     repository.save(comment);
 
     // 알림 생성 로직 이 과정에서 comment의 저장은 영향이 가지 않도록 try catch문으로 잡는다
@@ -107,7 +110,7 @@ public class CommentService {
     if (comment.getUser().getId().equals(userId)) {
       // 리뷰의 댓글 수 감소
       comment.getReview().decreaseCommentCount();
-      
+
       repository.deleteById(id);
     } else {
       throw new NoAuthorityException(ErrorCode.NO_AUTHORITY_USER);
@@ -125,7 +128,7 @@ public class CommentService {
       if (!comment.getIsDeleted()) {
         comment.getReview().decreaseCommentCount();
       }
-      
+
       comment.markAsDeleted(true);
     } else {
       throw new NoAuthorityException(ErrorCode.NO_AUTHORITY_USER);

@@ -57,14 +57,17 @@ public class NotificationServiceImpl implements NotificationService {
   @Transactional
   public NotificationDto createNotifyByLike(UUID reviewId, UUID triggerUserId) {
 
-    log.info("좋아요 알림 생성 시작: reviewId={}, triggerUserId={}", reviewId, triggerUserId);
+    log.debug("createNotifyByLike.start reviewId={} triggerUserId={}", reviewId, triggerUserId);
 
     // 1. 리뷰 조회 → 수신자 ID 확보
     Review review =
-        reviewRepository.findById(reviewId).orElseThrow(() -> {
-          log.warn("리뷰 없음: reviewId={}", reviewId);
-          return new NoSuchElementException("리뷰가 존재하지 않습니다.");
-        });
+        reviewRepository
+            .findById(reviewId)
+            .orElseThrow(
+                () -> {
+                  log.warn("리뷰 없음: reviewId={}", reviewId);
+                  return new NoSuchElementException("리뷰가 존재하지 않습니다.");
+                });
 
     // 2. 수신자 ID = 리뷰 작성자의 ID
     UUID receiverId = review.getUser().getId();
@@ -88,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification =
         Notification.forLike(reviewId, receiverId, nickname, review.getContent());
     Notification saved = notificationRepository.save(notification);
-    log.info("좋아요 알림 생성 완료: notificationId={}", saved.getId());
+    log.info("createNotifyByLike.success notificationId={}", saved.getId());
 
     // DTO 생성
     return notificationMapper.toDto(saved);
@@ -111,10 +114,11 @@ public class NotificationServiceImpl implements NotificationService {
     Review review =
         reviewRepository
             .findById(reviewId)
-            .orElseThrow(() -> {
-              log.warn("리뷰 없음: reviewId={}", reviewId);
-              return new DomainException(ErrorCode.REVIEW_NOT_FOUND);
-            });
+            .orElseThrow(
+                () -> {
+                  log.warn("리뷰 없음: reviewId={}", reviewId);
+                  return new DomainException(ErrorCode.REVIEW_NOT_FOUND);
+                });
 
     // 2. 수신자 ID = 리뷰 작성자의 ID
     UUID receiverId = review.getUser().getId();
@@ -136,7 +140,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification saved = notificationRepository.save(notification);
     log.info("댓글 알림 생성 완료: notificationId={}", saved.getId());
 
-    return notificationMapper.toDto(notificationRepository.save(saved));
+    return notificationMapper.toDto(saved);
   }
 
   /**
@@ -150,26 +154,34 @@ public class NotificationServiceImpl implements NotificationService {
    */
   @Override
   @Transactional
-  public NotificationDto createNotifyByPopularReview(UUID reviewId, UUID receiverId, PeriodType period, int rank){
-    log.info("인기 리뷰 알림 생성 시작: reviewId={}, receiverId={}, period={}, rank={}",
-        reviewId, receiverId, period, rank);
+  public NotificationDto createNotifyByPopularReview(
+      UUID reviewId, UUID receiverId, PeriodType period, int rank) {
+    log.info(
+        "인기 리뷰 알림 생성 시작: reviewId={}, receiverId={}, period={}, rank={}",
+        reviewId,
+        receiverId,
+        period,
+        rank);
 
     // 1) 리뷰 조회 → reviewTitle 확보
-    Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> {
-          log.warn("리뷰 없음: reviewId={}", reviewId);
-          return new DomainException(ErrorCode.REVIEW_NOT_FOUND);
-        });
+    Review review =
+        reviewRepository
+            .findById(reviewId)
+            .orElseThrow(
+                () -> {
+                  log.warn("리뷰 없음: reviewId={}", reviewId);
+                  return new DomainException(ErrorCode.REVIEW_NOT_FOUND);
+                });
     String reviewTitle = review.getContent();
 
     // 2) 알림 생성
-    Notification notification = Notification.forPopularReview(reviewId, receiverId, period, rank, reviewTitle);
+    Notification notification =
+        Notification.forPopularReview(reviewId, receiverId, period, rank, reviewTitle);
     Notification saved = notificationRepository.save(notification);
 
     log.info("인기 리뷰 알림 생성 완료: notificationId={}", saved.getId());
     return notificationMapper.toDto(saved);
   }
-
 
   /**
    * 알림 목록 조회
@@ -181,20 +193,26 @@ public class NotificationServiceImpl implements NotificationService {
    * @return 생성된 알림 목록
    */
   @Override
-  public CursorPageResponseNotificationDto getNotifications(UUID receiverId, String direction, Instant cursor, int limit) {
-    log.info("서비스 시작: getNotifications, receiverId={}, direction={}, cursor={}, limit={}",
-        receiverId, direction, cursor, limit);
-
+  public CursorPageResponseNotificationDto getNotifications(
+      UUID receiverId, String direction, Instant cursor, int limit) {
+    log.debug("getNotifications.start receiverId={} dir={} cursor={} limit={}", receiverId, direction, cursor, limit);
     // 1) 정렬 방향 & 페이징 설정
-    Sort.Direction sortDir = "ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort.Direction sortDir =
+        "ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
     Pageable pageable = PageRequest.of(0, limit + 1, Sort.by(sortDir, "createdAt"));
 
     // 2) JPQL 메서드 분기 호출
     List<Notification> raw;
     if ("ASC".equalsIgnoreCase(direction)) {
-      raw = (cursor == null) ? notificationRepository.findAscNoCursor(receiverId, pageable) : notificationRepository.findAscWithCursor(receiverId, cursor, pageable);
+      raw =
+          (cursor == null)
+              ? notificationRepository.findAscNoCursor(receiverId, pageable)
+              : notificationRepository.findAscWithCursor(receiverId, cursor, pageable);
     } else {
-      raw = (cursor == null) ? notificationRepository.findDescNoCursor(receiverId, pageable) : notificationRepository.findDescWithCursor(receiverId, cursor, pageable);
+      raw =
+          (cursor == null)
+              ? notificationRepository.findDescNoCursor(receiverId, pageable)
+              : notificationRepository.findDescWithCursor(receiverId, cursor, pageable);
     }
 
     // 3) hasNext 판단 및 잘라내기
@@ -202,9 +220,8 @@ public class NotificationServiceImpl implements NotificationService {
     List<Notification> page = hasNext ? raw.subList(0, limit) : raw;
 
     // 4) DTO 변환
-    List<NotificationDto> content = page.stream()
-        .map(notificationMapper::toDto)
-        .collect(Collectors.toList());
+    List<NotificationDto> content =
+        page.stream().map(notificationMapper::toDto).collect(Collectors.toList());
 
     // 5) nextCursor/nextAfter
     Instant nextAfter = hasNext ? page.get(page.size() - 1).getCreatedAt() : null;
@@ -215,13 +232,7 @@ public class NotificationServiceImpl implements NotificationService {
     log.info("전체 알림 카운트: receiverId={}, total={}", receiverId, total);
 
     return new CursorPageResponseNotificationDto(
-        content,
-        nextCursor,
-        nextAfter,
-        content.size(),
-        total,
-        hasNext
-    );
+        content, nextCursor, nextAfter, content.size(), total, hasNext);
   }
 
   /**
@@ -242,14 +253,19 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification =
         notificationRepository
             .findById(notificationId)
-            .orElseThrow(() -> {
-              log.warn("알림을 찾을 수 없음: notificationId={}", notificationId);
-              return new NotificationNotFoundException(ErrorCode.NOTIFICATION_NOT_FOUND);
-            });
+            .orElseThrow(
+                () -> {
+                  log.warn("알림을 찾을 수 없음: notificationId={}", notificationId);
+                  return new NotificationNotFoundException(ErrorCode.NOTIFICATION_NOT_FOUND);
+                });
 
     // 2. 알림의 수신자가 현재 요청자와 다를 경우 접근 권한 없음 예외 발생
     if (!notification.getReceiverId().equals(receiverId)) {
-      log.warn("알림 접근 권한 오류: notificationId={}, 요청자={}, 실제 수신자={}", notificationId, receiverId, notification.getReceiverId());
+      log.warn(
+          "알림 접근 권한 오류: notificationId={}, 요청자={}, 실제 수신자={}",
+          notificationId,
+          receiverId,
+          notification.getReceiverId());
       throw new NotificationAccessDeniedException(ErrorCode.INVALID_NOTIFICATION_RECEIVER);
     }
 
@@ -278,7 +294,7 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void updateAllConfirmedStatus(UUID receiverId) {
-    //데이터를 불러오지 않고 DB에 직접 해당 사용자의 알림을 전부 confirmed로 update시킨다.
+    // 데이터를 불러오지 않고 DB에 직접 해당 사용자의 알림을 전부 confirmed로 update시킨다.
     log.info("전체 알림 읽음 처리 시작 (JPQL): receiverId={}", receiverId);
     Instant now = Instant.now();
     notificationRepository.bulkMarkAsConfirmed(receiverId, now);
@@ -293,7 +309,7 @@ public class NotificationServiceImpl implements NotificationService {
   @Scheduled(cron = "0 30 0 * * *", zone = "Asia/Seoul")
   public void deleteConfirmedNotificationsOlderThanAWeek() {
     try{
-      Instant cutoff = Instant.now().minus(1, ChronoUnit.MINUTES);
+      Instant cutoff = Instant.now().minus(7, ChronoUnit.DAYS);
       log.info("Deleting confirmed notifications before {}", cutoff);
       notificationRepository.deleteOldConfirmedNotifications(cutoff);
 

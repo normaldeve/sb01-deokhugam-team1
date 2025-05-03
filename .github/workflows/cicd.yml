@@ -87,6 +87,7 @@ jobs:
           docker buildx build --platform linux/amd64 \
             -t public.ecr.aws/b0y2f2j8/deokhugam:local-slim \
             --push .
+
   ecs_deploy:
     name: 🛡️ ECS 배포
     if: github.event.pull_request.merged == true && needs.set_environment.outputs.environment == 'prod'
@@ -118,11 +119,11 @@ jobs:
             --services deokhugam-service \
             --query 'services[0].taskDefinition' \
             --output text) || (echo "::error::ECS 서비스 조회 실패!" && exit 1)
-          
+
           echo "기존 Task 정의 삭제..."
           aws ecs deregister-task-definition --task-definition "$task_def_arn" || (echo "::error::ECS Task 정의 삭제 실패!" && exit 1)
 
-      - name: 새 Task 정의 등록
+      - name: 새 Task 정의 등록 (App)
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -130,10 +131,18 @@ jobs:
           container-name: deokhugam-app
           image: public.ecr.aws/b0y2f2j8/deokhugam:local-slim
 
-      - name: ECS 서비스 업데이트
+      - name: ECS 서비스 업데이트 (App)
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           service: deokhugam-service
           cluster: deokhugam-cluster
           task-definition: ecs/task-definition.json
+          force-new-deployment: true
+
+      - name: ECS 서비스 업데이트 (Grafana)
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          service: grafana-service
+          cluster: deokhugam-cluster
+          task-definition: ecs/grafana-task-definition.json
           force-new-deployment: true

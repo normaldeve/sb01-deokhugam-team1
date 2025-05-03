@@ -3,7 +3,6 @@ package com.codeit.duckhu.domain.book.repository;
 import com.codeit.duckhu.domain.book.entity.Book;
 import java.util.List;
 import java.util.UUID;
-import org.apache.catalina.LifecycleState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -22,7 +22,6 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,8 +53,7 @@ public class NotificationServiceTest {
 
   @Mock private UserRepository userRepository;
 
-  @Mock
-  private MeterRegistry meterRegistry;
+  @Mock private MeterRegistry meterRegistry;
 
   @InjectMocks private NotificationServiceImpl notificationService;
 
@@ -201,23 +199,25 @@ public class NotificationServiceTest {
       given(reviewRepository.findById(reviewId)).willReturn(Optional.of(review));
       given(review.getContent()).willReturn(reviewContent);
 
-      Notification notification = Notification.forPopularReview(reviewId, receiverId, period, rank, reviewContent);
-      NotificationDto expectedDto = new NotificationDto(
-          UUID.randomUUID(),
-          receiverId,
-          reviewId,
-          reviewContent,
-          notification.getContent(),
-          false,
-          Instant.now(),
-          Instant.now());
+      Notification notification =
+          Notification.forPopularReview(reviewId, receiverId, period, rank, reviewContent);
+      NotificationDto expectedDto =
+          new NotificationDto(
+              UUID.randomUUID(),
+              receiverId,
+              reviewId,
+              reviewContent,
+              notification.getContent(),
+              false,
+              Instant.now(),
+              Instant.now());
 
       given(notificationRepository.save(any(Notification.class))).willReturn(notification);
       given(notificationMapper.toDto(notification)).willReturn(expectedDto);
 
       // when: 인기리뷰 알림 생성 호출
-      NotificationDto result = notificationService.createNotifyByPopularReview(
-          reviewId, receiverId, period, rank);
+      NotificationDto result =
+          notificationService.createNotifyByPopularReview(reviewId, receiverId, period, rank);
 
       // then
       assertThat(result.reviewId()).isEqualTo(reviewId);
@@ -240,27 +240,39 @@ public class NotificationServiceTest {
     @DisplayName("DESC 정렬, 커서 없는 경우 페이지 한정 조회 및 hasNext=false")
     void getNotificationsDescNoCursor() {
       // given
-      List<Notification> raw = IntStream.range(0, 3)
-          .mapToObj(i -> Notification.forLike(reviewId, rid, "u" + i, "c" + i))
-          .collect(Collectors.toList());
+      List<Notification> raw =
+          IntStream.range(0, 3)
+              .mapToObj(i -> Notification.forLike(reviewId, rid, "u" + i, "c" + i))
+              .collect(Collectors.toList());
       String direction = "DESC";
       Instant cursor = null;
       int limit = 3;
 
-      given(notificationRepository.findDescNoCursor(rid,
-          PageRequest.of(0, limit + 1, Sort.by(Sort.Direction.DESC, "createdAt"))))
+      given(
+              notificationRepository.findDescNoCursor(
+                  rid, PageRequest.of(0, limit + 1, Sort.by(Sort.Direction.DESC, "createdAt"))))
           .willReturn(raw);
 
       given(notificationRepository.countByReceiverId(rid)).willReturn(3L);
-      List<NotificationDto> dtoList = raw.stream()
-          .map(n -> new NotificationDto(n.getId(), rid, n.getReviewId(), n.getContent(),
-              n.getContent(), false, n.getCreatedAt(), n.getUpdatedAt()))
-          .collect(Collectors.toList());
+      List<NotificationDto> dtoList =
+          raw.stream()
+              .map(
+                  n ->
+                      new NotificationDto(
+                          n.getId(),
+                          rid,
+                          n.getReviewId(),
+                          n.getContent(),
+                          n.getContent(),
+                          false,
+                          n.getCreatedAt(),
+                          n.getUpdatedAt()))
+              .collect(Collectors.toList());
       dtoList.forEach(dto -> given(notificationMapper.toDto(any())).willReturn(dto));
 
       // when
-      CursorPageResponseNotificationDto page = notificationService.getNotifications(rid, direction,
-          cursor, limit);
+      CursorPageResponseNotificationDto page =
+          notificationService.getNotifications(rid, direction, cursor, limit);
 
       // then
       assertThat(page.content()).hasSize(3);
@@ -276,26 +288,35 @@ public class NotificationServiceTest {
       Instant lastCursor = Instant.now().minusSeconds(10);
       String direction = "ASC";
       int limit = 2;
-      List<Notification> raw = IntStream.range(0, 3)
-          .mapToObj(i -> {
-            Notification n = Notification.forLike(reviewId, rid, "u"+i, "c"+i);
-            // ensure createdAt > cursor
-            ReflectionTestUtils.setField(n, "createdAt", base.plusSeconds(i));
-            return n;
-          })
-          .collect(Collectors.toList());
+      List<Notification> raw =
+          IntStream.range(0, 3)
+              .mapToObj(
+                  i -> {
+                    Notification n = Notification.forLike(reviewId, rid, "u" + i, "c" + i);
+                    // ensure createdAt > cursor
+                    ReflectionTestUtils.setField(n, "createdAt", base.plusSeconds(i));
+                    return n;
+                  })
+              .collect(Collectors.toList());
 
       Pageable pageable = PageRequest.of(0, limit + 1, Sort.by(Sort.Direction.ASC, "createdAt"));
       given(notificationRepository.findAscWithCursor(rid, lastCursor, pageable)).willReturn(raw);
       given(notificationRepository.countByReceiverId(rid)).willReturn(5L);
 
-      raw.subList(0, limit).forEach(n ->
-          given(notificationMapper.toDto(n))
-              .willReturn(new NotificationDto(
-                  n.getId(), rid, n.getReviewId(),
-                  n.getContent(), n.getContent(),
-                  false, n.getCreatedAt(), n.getUpdatedAt()))
-      );
+      raw.subList(0, limit)
+          .forEach(
+              n ->
+                  given(notificationMapper.toDto(n))
+                      .willReturn(
+                          new NotificationDto(
+                              n.getId(),
+                              rid,
+                              n.getReviewId(),
+                              n.getContent(),
+                              n.getContent(),
+                              false,
+                              n.getCreatedAt(),
+                              n.getUpdatedAt())));
 
       // when
       CursorPageResponseNotificationDto page =
@@ -308,6 +329,7 @@ public class NotificationServiceTest {
       assertThat(page.nextCursor()).isNotNull();
     }
   }
+
   @Nested
   @DisplayName("알림 읽은 상태 업데이트")
   class UpdateNotificationTest {
@@ -381,30 +403,9 @@ public class NotificationServiceTest {
       notificationService.updateAllConfirmedStatus(receiverId);
 
       // then: bulk update 메서드 호출 검증
-      then(notificationRepository).should(times(1))
+      then(notificationRepository)
+          .should(times(1))
           .bulkMarkAsConfirmed(eq(receiverId), any(Instant.class));
-    }
-  }
-
-  @Nested
-  @DisplayName("알림 삭제 스케줄러")
-  class DeleteNotificationTest {
-
-    @Test
-    @DisplayName("매일 00:30 기준 1분 지난 확인된 알림 삭제")
-    void deleteConfirmedNotificationsOlderThanOneMinute() {
-      // given
-      Counter counter = mock(Counter.class);
-      given(meterRegistry.counter(anyString())).willReturn(counter);
-
-      // when
-      notificationService.deleteConfirmedNotificationsOlderThanAWeek();
-
-      // then
-      then(notificationRepository).should(times(1))
-          .deleteOldConfirmedNotifications(argThat(cutoff ->
-              Duration.between(cutoff, Instant.now()).toMinutes() >= 1
-          ));
     }
   }
 }

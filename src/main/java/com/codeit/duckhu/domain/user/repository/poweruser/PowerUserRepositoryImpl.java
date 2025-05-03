@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
-
 
 @RequiredArgsConstructor
 public class PowerUserRepositoryImpl implements PowerUserRepositoryCustom {
@@ -38,90 +36,86 @@ public class PowerUserRepositoryImpl implements PowerUserRepositoryCustom {
   public List<PowerUserStatsDto> findPowerUserStatsBetween(Instant start, Instant end) {
     // 리뷰 인기 점수 총합 (작성자 기준으로 group by)
 
-    //review의 필드들이 int 여기에 * double하면 int*int 되는 문제 해결을 위함
-    NumberExpression<Double> doubleScore= Expressions.numberTemplate(Double.class,"({0} * 0.3 + {1} * 0.7)", review.likeCount, review.commentCount);
-    List<Tuple> reviewScores = queryFactory
-            .select(
-                    review.user.id,
-                    doubleScore.sum()
-            )
+    // review의 필드들이 int 여기에 * double하면 int*int 되는 문제 해결을 위함
+    NumberExpression<Double> doubleScore =
+        Expressions.numberTemplate(
+            Double.class, "({0} * 0.3 + {1} * 0.7)", review.likeCount, review.commentCount);
+    List<Tuple> reviewScores =
+        queryFactory
+            .select(review.user.id, doubleScore.sum())
             .from(review)
-            .where(
-                    review.createdAt.between(start, end),
-                    review.isDeleted.eq(false)
-            )
+            .where(review.createdAt.between(start, end), review.isDeleted.eq(false))
             .groupBy(review.user.id)
             .fetch();
 
-    //유저가 누른 좋아요 수
-    Map<UUID, Integer> likedCounts = queryFactory
+    // 유저가 누른 좋아요 수
+    Map<UUID, Integer> likedCounts =
+        queryFactory
             .select(likedUser.userId, likedUser.count())
             .from(likedUser)
             .where(likedUser.createdAt.between(start, end))
             .groupBy(likedUser.userId)
             .fetch()
             .stream()
-            .collect(Collectors.toMap(
-                    t -> t.get(likedUser.userId),
-                    t -> Math.toIntExact(t.get(1, Long.class))
-            ));
+            .collect(
+                Collectors.toMap(
+                    t -> t.get(likedUser.userId), t -> Math.toIntExact(t.get(1, Long.class))));
 
-    //유저가 쓴 댓글 수
-    Map<UUID,Integer> commentCounts=queryFactory
-            .select(comment.user.id,comment.count())
+    // 유저가 쓴 댓글 수
+    Map<UUID, Integer> commentCounts =
+        queryFactory
+            .select(comment.user.id, comment.count())
             .from(comment)
-            .where(comment.createdAt.between(start,end),
-                    comment.isDeleted.eq(false))
+            .where(comment.createdAt.between(start, end), comment.isDeleted.eq(false))
             .groupBy(comment.user.id)
             .fetch()
             .stream()
-            .collect(Collectors.toMap(
-                    t->t.get(comment.user.id),
-                    t->Math.toIntExact(t.get(1, Long.class))
-            ));
+            .collect(
+                Collectors.toMap(
+                    t -> t.get(comment.user.id), t -> Math.toIntExact(t.get(1, Long.class))));
 
     return reviewScores.stream()
-            .map(tuple -> {
+        .map(
+            tuple -> {
               UUID userId = tuple.get(review.user.id);
               Number scoreSum = tuple.get(1, Number.class);
-              Double reviewScoreSum = scoreSum!=null?scoreSum.doubleValue():0.0;
+              Double reviewScoreSum = scoreSum != null ? scoreSum.doubleValue() : 0.0;
 
               Integer likeCount = likedCounts.getOrDefault(userId, 0);
               Integer commCount = commentCounts.getOrDefault(userId, 0);
 
               return PowerUserStatsDto.builder()
-                      .userId(userId)
-                      .reviewScoreSum(reviewScoreSum)
-                      .likedCount(likeCount)
-                      .commentCount(commCount)
-                      .build();
-            }).toList();
+                  .userId(userId)
+                  .reviewScoreSum(reviewScoreSum)
+                  .likedCount(likeCount)
+                  .commentCount(commCount)
+                  .build();
+            })
+        .toList();
   }
 
   @Override
   public List<PowerUser> searchByPeriodWithCursorPaging(
-      PeriodType period, Direction direction,
-      String cursor,
-      Instant after,
-      int limit) {
+      PeriodType period, Direction direction, String cursor, Instant after, int limit) {
     BooleanBuilder condition = new BooleanBuilder();
     condition.and(powerUser.period.eq(period));
     condition.and(user.deleted.eq(false));
 
-    //커서 있을경우 조건 추가해서 이후 데이터 조회
-    if(cursor != null && after != null) {
+    // 커서 있을경우 조건 추가해서 이후 데이터 조회
+    if (cursor != null && after != null) {
       condition.and(getCursorCondition(cursor, after, isAsc(direction)));
     }
-    //정렬기준 생성
+    // 정렬기준 생성
     List<OrderSpecifier<?>> orders = getOrderSpecifiers(isAsc(direction));
 
     return queryFactory
-            .selectFrom(powerUser)
-            .join(powerUser.user, user).fetchJoin()
-            .where(condition)
-            .orderBy(orders.toArray(OrderSpecifier[]::new))
-            .limit(limit)
-            .fetch();
+        .selectFrom(powerUser)
+        .join(powerUser.user, user)
+        .fetchJoin()
+        .where(condition)
+        .orderBy(orders.toArray(OrderSpecifier[]::new))
+        .limit(limit)
+        .fetch();
   }
 
   private boolean isAsc(Direction direction) {
@@ -136,22 +130,24 @@ public class PowerUserRepositoryImpl implements PowerUserRepositoryCustom {
     return orders;
   }
 
-  private BooleanBuilder getCursorCondition(
-          String cursor, Instant after, boolean isAsc) {
+  private BooleanBuilder getCursorCondition(String cursor, Instant after, boolean isAsc) {
     UUID cursorId = UUID.fromString(cursor);
     BooleanBuilder builder = new BooleanBuilder();
 
     if (isAsc) {
-      builder.and(powerUser.createdAt.gt(after)
-                      .or(powerUser.createdAt.eq(after)
-                              .and(powerUser.user.id.gt(cursorId))));
-    }else{
-      builder.and(powerUser.createdAt.lt(after)
-              .or(powerUser.createdAt.eq(after)
-                      .and(powerUser.user.id.lt(cursorId))));
+      builder.and(
+          powerUser
+              .createdAt
+              .gt(after)
+              .or(powerUser.createdAt.eq(after).and(powerUser.user.id.gt(cursorId))));
+    } else {
+      builder.and(
+          powerUser
+              .createdAt
+              .lt(after)
+              .or(powerUser.createdAt.eq(after).and(powerUser.user.id.lt(cursorId))));
     }
 
     return builder;
   }
-
 }

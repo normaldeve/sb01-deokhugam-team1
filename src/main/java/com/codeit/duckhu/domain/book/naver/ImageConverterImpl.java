@@ -1,6 +1,7 @@
 package com.codeit.duckhu.domain.book.naver;
 
 import com.codeit.duckhu.domain.book.exception.BookException;
+import com.codeit.duckhu.domain.book.exception.NaverAPIException;
 import com.codeit.duckhu.global.exception.ErrorCode;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -26,7 +27,7 @@ public class ImageConverterImpl implements ImageConverter {
       return Base64.getEncoder().encodeToString(imageBytes);
 
     } catch (Exception e) {
-      throw new BookException(ErrorCode.INTERNAL_SERVER_ERROR);
+      throw new NaverAPIException(ErrorCode.IMAGE_BASE64_CONVERSION_FAIL);
     }
   }
 }

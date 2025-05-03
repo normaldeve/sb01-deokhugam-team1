@@ -19,7 +19,6 @@ public class PopularBookBatchScheduler {
     executePopularBookBatch(PeriodType.WEEKLY, "[주간 배치 작업]");
     executePopularBookBatch(PeriodType.MONTHLY, "[월간 배치 작업]");
     executePopularBookBatch(PeriodType.ALL_TIME, "[역대 배치 작업]");
-
   }
 
   private void executePopularBookBatch(PeriodType period, String logPrefix) {

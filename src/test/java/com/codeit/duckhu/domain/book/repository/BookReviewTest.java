@@ -27,6 +27,11 @@ public class BookReviewTest {
 
   @Autowired private UserRepository userRepository;
 
+  /**
+   * 도서에 등록된 리뷰가 있을 때
+   * - 리뷰 개수(count)가 정확히 계산되는지
+   * - 리뷰 평균 평점(average rating)이 올바른지 검증합니다.
+   */
   @Test
   @DisplayName("리뷰가 존재하면 개수와 평균 평점을 정확히 계산한다")
   void countAndAverageRating_withReviews() {
@@ -75,6 +80,11 @@ public class BookReviewTest {
     assertThat(avg).isEqualTo(3.0); // (4 + 2) / 2
   }
 
+  /**
+   * 도서에 리뷰가 하나도 없을 때
+   * - 리뷰 개수는 0
+   * - 평균 평점은 0.0으로 계산되는지 검증합니다.
+   */
   @Test
   @DisplayName("리뷰가 없으면 개수는 0, 평균 평점은 0.0이다")
   void countAndAverageRating_withoutReviews() {

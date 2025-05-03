@@ -1,12 +1,9 @@
 package com.codeit.duckhu.domain.book.controller;
 
-import com.codeit.duckhu.domain.user.UserAuthenticationFilter;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -18,6 +15,7 @@ import com.codeit.duckhu.domain.book.dto.BookUpdateRequest;
 import com.codeit.duckhu.domain.book.dto.CursorPageResponseBookDto;
 import com.codeit.duckhu.domain.book.dto.NaverBookDto;
 import com.codeit.duckhu.domain.book.service.BookService;
+import com.codeit.duckhu.domain.user.UserAuthenticationFilter;
 import com.codeit.duckhu.global.type.Direction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
@@ -30,6 +28,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,9 +38,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(
     controllers = BookController.class,
     excludeFilters =
-    @ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE,
-        classes = UserAuthenticationFilter.class))
+        @ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = UserAuthenticationFilter.class))
 class BookControllerTest {
 
   @Autowired private MockMvc mockMvc;
